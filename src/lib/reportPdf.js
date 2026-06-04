@@ -156,24 +156,23 @@ function renderReport(d, theme, cfg) {
   .serif { font-family:'Noto Serif KR',serif; }
   b { font-weight:700; }
 
-  /* ── 페이지 시스템 — 한 섹션 = 한 페이지(분할 없음) ──
-     각 .page 는 A4 한 장(297mm) 높이의 고정 박스. 내부 .page-inner 를
-     세로 가운데로 모으고, 로드 후 JS(fitPages)가 내용을 페이지의 약 70~90%로
-     자동 스케일해 '한 분야 = 한 페이지'가 넘치지도 비지도 않게 채운다. */
-  .page { position: relative; height: 297mm; overflow: hidden; }
+  /* ── 페이지 구분 — 한 섹션 = 한 페이지(분할 없음) ──
+     섹션은 자연 높이로 흐르고, clientPdf가 각 .page 를 캔버스에서 잘라
+     PDF 한 장에 '맞춰서' 그린다(길면 축소·짧으면 가운데). 절대 분할되지 않는다. */
+  .page { position: relative; }
   .page.brk { break-before: page; page-break-before: always; }
-  .flow { padding: 0; }
+  .flow { padding: 0 22mm; }
 
-  /* 본문 섹션 페이지 — 내용을 세로 가운데로 모아 한 장에 담는다 */
+  /* ── 섹션 ── */
   .sec { margin-bottom: 0; }
-  .sec.page { display: flex; align-items: center; justify-content: center; padding: 0 22mm; }
-  .page-inner { width: 100%; transform-origin: center center; }
-  /* 섹션 상단 — 얇은 별 장식 띠 (스케일과 무관하게 페이지 상단 고정) */
+  .sec.page { padding: 22pt 0 18pt; position: relative; }
+  .page-inner { width: 100%; }
+  /* 섹션 상단 — 얇은 별 장식 띠 */
   .sec.page::before {
-    content: ''; position: absolute; top: 16mm; left: 22mm; right: 22mm;
+    content: ''; display: block; position: absolute; top: 0; left: 22mm; right: 22mm;
     height: 1px; background: linear-gradient(to right, transparent, ${hexA(PRI,0.35)}, ${hexA(SEC,0.25)}, transparent);
   }
-  .sec.page::after { content:'✦ ✦ ✦'; position:absolute; bottom:12mm; left:0; right:0; text-align:center; color:${PRI}; font-size:10pt; letter-spacing:0.55em; opacity:0.35; }
+  .sec.page::after { content:'✦ ✦ ✦'; display:block; text-align:center; margin-top:30pt; color:${PRI}; font-size:10pt; letter-spacing:0.55em; opacity:0.35; }
 
   /* ── 섹션 헤더 ── */
   .sec-head { margin:0 0 26pt; break-inside:avoid; break-after:avoid; position:relative; }
@@ -312,7 +311,7 @@ function renderReport(d, theme, cfg) {
   }
 
   /* ── 명식 ── */
-  .myungsik.page { display: flex; align-items: center; justify-content: center; padding: 0 22mm; }
+  .myungsik.page { padding: 0 22mm; }
   .myungsik-hero { text-align:center; margin-bottom:24pt; padding:22pt 26pt; background:${hexA(PRI, 0.05)}; border-radius:20px; border:1px solid ${hexA(PRI, 0.24)}; box-shadow:0 4px 24px ${hexA(PRI,0.08)}; }
   .myungsik-hero .mh-name { font-size:23pt; font-weight:700; color:${p.ink}; }
   .myungsik-hero .mh-meta { margin-top:13pt; display:inline-flex; align-items:center; font-size:11pt; color:${p.dim};
@@ -471,34 +470,6 @@ function renderReport(d, theme, cfg) {
     <div class="esign">${esc(d.nickname || '')}님을 위해 · ${esc(d.date || '')}</div>
   </section>
 
-  <!-- 한 분야 = 한 페이지: 내용을 페이지의 약 70~90%로 자동 맞춤(넘치면 줄이고, 모자라면 살짝 키워 중앙 배치) -->
-  <script>
-  (function () {
-    var TARGET = 0.86;   // 목표: 페이지 높이의 86%를 채운다
-    var MAX_UP = 1.12;   // 일반 본문은 1.12배까지만 키운다(가독성 유지)
-    var MAX_UP_OV = 1.5; // 한눈에 보기(개요)는 가벼우므로 더 키워 페이지를 채운다
-    function fit() {
-      var pages = document.querySelectorAll('.sec.page, .myungsik.page');
-      for (var i = 0; i < pages.length; i++) {
-        var pg = pages[i], inner = pg.querySelector('.page-inner');
-        if (!inner) continue;
-        inner.style.transform = 'none';
-        var avail = pg.clientHeight;                 // A4 한 장(px)
-        var h = inner.getBoundingClientRect().height; // 내용 자연 높이(px)
-        if (!h) continue;
-        var cap = inner.querySelector('.ov') ? MAX_UP_OV : MAX_UP;
-        var s = (avail * TARGET) / h;
-        if (s > cap) s = cap;                        // 과도한 확대 방지
-        if (s * h > avail * 0.98) s = (avail * 0.98) / h; // 절대 넘치지 않게
-        inner.style.transform = 'scale(' + s.toFixed(4) + ')';
-      }
-    }
-    function run() { fit(); setTimeout(fit, 120); } // 폰트 적용 후 재보정
-    if (document.readyState === 'complete') run();
-    else window.addEventListener('load', run);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
-  })();
-  </script>
 
 </body></html>`;
 }

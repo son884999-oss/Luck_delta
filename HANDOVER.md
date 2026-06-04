@@ -169,10 +169,12 @@ stale day-scoped caches on load. The premium **PDF blob** is cached in IndexedDB
 - jsPDF `unit:'px'` "a4" is 595×842 (pt-based), **not** 794 → caused vertical stretch;
   placement preserves aspect via `drawH = sliceH * (pageW/canvas.width)`.
 - A `::first-letter` drop-cap once split the user's name's first character — removed.
-- Pagination is **one section = one page**: every block (cover/명식/each section/ending)
-  is a fixed-height `.page` box (297mm). An inline `fitPages` script auto-scales each
-  `.page-inner` (via `transform: scale`) to fill ~70–90% of the page so a field never
-  splits across pages nor leaves a sparse tail. clientPdf cuts at each `.page`.
+- Pagination is **one section = one page (never split)**: sections flow at natural
+  height in the DOM, each marked `.page`. `clientPdf` draws every `.page` onto exactly
+  one PDF page — **scaling it down (width included) to fit when it's taller than a
+  page**, or centering it vertically when shorter. No `transform`/`zoom` is used
+  (html2canvas doesn't capture them reliably). Content shrinks rather than splitting.
+  Each report also has a standalone "한눈에 보기" overview page right after 명식.
 - Report generation is **non-blocking**: it runs in the background, shows a toast
   (`ReportToast`) when done, and the PDF is saved to IndexedDB.
 
