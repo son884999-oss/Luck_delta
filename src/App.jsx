@@ -2866,11 +2866,6 @@ function FoodTable({ nickname, birth, onBack }) {
 
   // 내 기운(오행 분포) — '오늘의 기운' 진단 비주얼/문구의 근거
   const saju = useMemo(() => { try { return calculateSaju(birth); } catch (e) { return null; } }, [birth]);
-  const focusEl = saju?.lacking?.[0] || null;                 // 오늘 채워줄 기운(부족)
-  const diagText = !saju ? ''
-    : focusEl
-      ? `오늘은 ${OHAENG[focusEl]?.plain || ''} 기운이 살짝 비어 있어요. 그 빈자리를 채워줄 따뜻한 한 그릇을 골라봤어요.`
-      : `오행이 두루 고른 편이에요. 오늘은 마음 가는 음식을 편히 즐겨도 좋아요.`;
   // 동반자 톤 — 시간대 인사로 '매일 밤 곁의 식탁' 느낌
   const greet = (() => { const h = new Date().getHours(); return h < 6 ? '고요한 밤이에요' : h < 12 ? '좋은 아침이에요' : h < 18 ? '나른한 오후예요' : '편안한 저녁이에요'; })();
 
@@ -3007,15 +3002,6 @@ function FoodTable({ nickname, birth, onBack }) {
           </div>
         </div>
       </header>
-
-      {/* 오늘의 기운 진단 — 심플 텍스트 카드, 별자리 제거 */}
-      {saju && diagText && (
-        <div className="rounded-[18px] px-4 py-3.5 flex items-start gap-3"
-          style={{ background:'rgba(240,180,41,0.06)', border:'1px solid rgba(240,180,41,0.16)' }}>
-          <span className="text-[20px] flex-shrink-0 mt-0.5">🌿</span>
-          <p className="text-[13px]" style={{ color:'rgba(255,245,228,0.75)', lineHeight:1.7 }}>{diagText}</p>
-        </div>
-      )}
 
       {anErr && <ErrorBox msg={anErr}/>}
       {!anErr && loadErr && <ErrorBox msg="지금 천문 식탁 서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요 🙏"/>}
