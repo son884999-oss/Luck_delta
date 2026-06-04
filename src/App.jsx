@@ -2851,6 +2851,7 @@ function RestaurantMap({ places, accent = '#34d399' }) {
 
 function FoodTable({ nickname, birth, onBack }) {
   const EM = '#34d399';
+  const CARD_W = 320;       // 카드·검색창 공통 폭 — 검색 입력+버튼이 위 카드와 같은 가로 폭을 유지
   const SHOW_SEARCH = true; // 음식 직접 검색 활성화
   const [uid, setUid] = useState(null);
   const [q, setQ] = useState('');
@@ -3029,7 +3030,7 @@ function FoodTable({ nickname, birth, onBack }) {
             {isReco && <span className="text-[11px]" style={{ color: 'var(--ink-faint)' }}>매일 바뀌어요</span>}
           </div>
 
-          <div className="mx-auto w-full" style={{ maxWidth:320 }}>
+          <div className="mx-auto w-full" style={{ maxWidth: CARD_W }}>
             {!revealed ? (
               /* 뚜껑 덮인 그릇 — 탭하면 열린다 */
               <button onClick={() => { setRevealed(true); playReveal(); vibrate([28,50,80]); }}
@@ -3061,7 +3062,7 @@ function FoodTable({ nickname, birth, onBack }) {
           {/* 공개 후 — 설명/추천/단점 + 액션(progressive disclosure) */}
           {revealed && (
             <div className="rounded-2xl p-5 animate-fade-up mx-auto w-full" style={{
-              maxWidth:320,
+              maxWidth: CARD_W,
               background:'linear-gradient(160deg, rgba(30,20,10,0.9), rgba(18,14,8,0.95))',
               border:`1px solid rgba(240,180,41,0.18)`,
               boxShadow:'0 8px 32px rgba(0,0,0,0.4)' }}>
@@ -3090,6 +3091,20 @@ function FoodTable({ nickname, birth, onBack }) {
                 <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.10)' }}>
                   <p className="text-[11px] font-bold mb-1.5" style={{ color: cat.color }}>인증 기능성</p>
                   {shown.functionalClaims.map((c, i) => <p key={i} className="text-[12.5px]" style={{ color: 'var(--ink-dim)' }}>· {c}</p>)}
+                </div>
+              )}
+              {/* 오늘의 추천 — 음식의 기대 효과를 타원형 칩으로 정리(대안 메뉴 칩과 동일 스타일) */}
+              {isReco && shown.benefits?.length > 0 && (
+                <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.10)' }}>
+                  <p className="text-[11px] font-bold mb-2" style={{ color: EM }}>이런 점이 좋아요</p>
+                  <div className="flex flex-wrap gap-2">
+                    {shown.benefits.map((b, i) => (
+                      <span key={i} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold px-3 py-1.5 rounded-full break-keep"
+                        style={{ color: 'var(--ink)', background: `${EM}12`, border: `1px solid ${EM}33` }}>
+                        <span style={{ color: EM, fontSize: 10 }}>✦</span>{b}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
               {/* 액션 — 주변 식당(주행동) + 공유 + (검색결과면) 오늘의 추천 복귀 */}
@@ -3154,7 +3169,7 @@ function FoodTable({ nickname, birth, onBack }) {
       {SHOW_SEARCH && (
         <section className="space-y-2.5 pt-1">
           <Eyebrow color="rgba(52,211,153,0.85)" className="ml-1">식품 검색</Eyebrow>
-          <div className="flex gap-2 mx-auto w-full" style={{ maxWidth:320 }}>
+          <div className="flex gap-2 mx-auto w-full" style={{ maxWidth: CARD_W }}>
             <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && doSearch()}
               placeholder="식품명 검색 (예: 콩나물, 두부, 홍삼)" aria-label="식품 검색"
               className="flex-1 text-[15px] outline-none"

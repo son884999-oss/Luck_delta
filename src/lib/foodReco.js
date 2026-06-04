@@ -17,25 +17,25 @@ const PARENT = { 목: '수', 화: '목', 토: '화', 금: '토', 수: '금' };
 // el: 이 음식이 보강하는 오행(들). nature: 한방 성질. score: 기본 적합도(보강 시 가산).
 const FOODS = [
   // 수(물) — 지혜·차분·신장
-  { name: '순두부찌개', el: ['수', '토'], nature: '얼큰하고 부드러운 성질', desc: '보글보글 순두부가 속을 데우고 수분을 채워줘요.', good: '마음이 달뜨고 긴장된 날', bad: '아주 매운 건 순하게', score: 86 },
-  { name: '해물탕', el: ['수'], nature: '시원하고 담백한 성질', desc: '바다의 물 기운이 가득해 머리를 맑게 해줘요.', good: '머리가 무겁고 답답한 날', bad: '속이 차면 뜨끈하게', score: 84 },
-  { name: '미역국 백반', el: ['수', '목'], nature: '담백하고 부드러운 성질', desc: '속을 편안히 데우고 수분을 채워줘요.', good: '기운이 분주한 날', bad: '소화 약하면 따뜻하게', score: 83 },
+  { name: '순두부찌개', el: ['수', '토'], nature: '얼큰하고 부드러운 성질', desc: '보글보글 순두부가 속을 데우고 수분을 채워줘요.', good: '마음이 달뜨고 긴장돼 쉬어가고 싶은 날', bad: '아주 매운 건 순하게', score: 86, benefits: ['수분과 기운 보충', '속을 따뜻하게 데움', '긴장 완화에 도움'] },
+  { name: '해물탕', el: ['수'], nature: '시원하고 담백한 성질', desc: '바다의 물 기운이 가득해 머리를 맑게 해줘요.', good: '머리가 무겁고 생각이 복잡한 날', bad: '속이 차면 뜨끈하게', score: 84, benefits: ['머리를 맑게 정돈', '담백한 단백질 보충', '수분 보강'] },
+  { name: '미역국 백반', el: ['수', '목'], nature: '담백하고 부드러운 성질', desc: '속을 편안히 데우고 수분을 채워줘요.', good: '기운이 분주하고 마음이 바쁜 날', bad: '소화 약하면 따뜻하게', score: 83, benefits: ['속을 편안하게', '수분·미네랄 보충', '부담 없는 소화'] },
   // 목(나무) — 성장·간·유연
-  { name: '비빔밥', el: ['목', '토'], nature: '산뜻하고 든든한 성질', desc: '푸른 나물이 막힌 기운을 풀어 가볍게 해줘요.', good: '몸이 무겁고 나른한 날', bad: '찬 나물 많으면 속이 찰 수 있어요', score: 85 },
-  { name: '콩나물국밥', el: ['목', '수'], nature: '시원하고 개운한 성질', desc: '아삭한 콩나물이 속을 풀어줘요.', good: '전날 무리했거나 더부룩한 날', bad: '너무 맵지 않게', score: 84 },
-  { name: '쌈밥 정식', el: ['목'], nature: '향긋하고 순한 성질', desc: '푸른 채소가 답답함을 틔워줘요.', good: '눈이 피로하고 답답한 날', bad: '짜지 않게', score: 82 },
+  { name: '비빔밥', el: ['목', '토'], nature: '산뜻하고 든든한 성질', desc: '푸른 나물이 막힌 기운을 풀어 가볍게 해줘요.', good: '몸이 무겁고 나른해 가볍게 풀고 싶은 날', bad: '찬 나물 많으면 속이 찰 수 있어요', score: 85, benefits: ['막힌 기운 풀이', '채소로 가벼운 포만', '균형 잡힌 한 끼'] },
+  { name: '콩나물국밥', el: ['목', '수'], nature: '시원하고 개운한 성질', desc: '아삭한 콩나물이 속을 풀어줘요.', good: '전날 무리했거나 속이 더부룩한 날', bad: '너무 맵지 않게', score: 84, benefits: ['속풀이에 도움', '수분 보충', '개운한 마무리'] },
+  { name: '쌈밥 정식', el: ['목'], nature: '향긋하고 순한 성질', desc: '푸른 채소가 답답함을 틔워줘요.', good: '눈이 피로하고 답답함이 쌓인 날', bad: '짜지 않게', score: 82, benefits: ['답답함 틔우기', '풍부한 채소 섭취', '가벼운 환기'] },
   // 화(불) — 열정·심장·순환
-  { name: '제육볶음', el: ['화'], nature: '맵고 따뜻한 성질', desc: '붉은 기운이 처진 의욕에 생기를 줘요.', good: '기운 없고 처지는 날', bad: '속쓰림 있으면 양 줄여서', score: 85 },
-  { name: '닭갈비', el: ['화', '금'], nature: '매콤하고 따뜻한 성질', desc: '얼큰한 불 기운이 활력을 깨워줘요.', good: '무기력하고 가라앉는 날', bad: '위가 예민하면 순하게', score: 83 },
-  { name: '부대찌개', el: ['화', '수'], nature: '얼큰하고 든든한 성질', desc: '뜨끈한 국물이 몸을 데워줘요.', good: '쌀쌀하고 처지는 날', bad: '짠맛 강하면 국물은 적게', score: 82 },
+  { name: '제육볶음', el: ['화'], nature: '맵고 따뜻한 성질', desc: '붉은 기운이 처진 의욕에 생기를 줘요.', good: '기운 없고 의욕이 처지는 날', bad: '속쓰림 있으면 양 줄여서', score: 85, benefits: ['처진 의욕에 생기', '든든한 단백질', '따뜻한 기운 보강'] },
+  { name: '닭갈비', el: ['화', '금'], nature: '매콤하고 따뜻한 성질', desc: '얼큰한 불 기운이 활력을 깨워줘요.', good: '무기력하고 가라앉는 날', bad: '위가 예민하면 순하게', score: 83, benefits: ['활력 깨우기', '든든한 포만감', '매콤한 순환'] },
+  { name: '부대찌개', el: ['화', '수'], nature: '얼큰하고 든든한 성질', desc: '뜨끈한 국물이 몸을 데워줘요.', good: '쌀쌀하고 몸이 처지는 날', bad: '짠맛 강하면 국물은 적게', score: 82, benefits: ['몸을 데움', '든든한 국물', '쌀쌀함 달래기'] },
   // 토(흙) — 안정·소화·중심
-  { name: '된장찌개 백반', el: ['토'], nature: '구수하고 든든한 성질', desc: '곡식과 장이 속 중심을 잡아줘요.', good: '식사가 불규칙했던 날', bad: '짜지 않게', score: 85 },
-  { name: '삼계탕', el: ['토', '화'], nature: '따뜻하게 보하는 성질', desc: '기력을 채워주는 든든한 한 그릇.', good: '기운이 허하고 지친 날', bad: '열이 많은 날엔 가볍게', score: 84 },
-  { name: '갈비탕', el: ['토', '수'], nature: '담백하고 보하는 성질', desc: '맑은 국물이 속을 편안히 채워줘요.', good: '속이 허한 날', bad: '기름은 걷어내고', score: 82 },
+  { name: '된장찌개 백반', el: ['토'], nature: '구수하고 든든한 성질', desc: '곡식과 장이 속 중심을 잡아줘요.', good: '식사가 불규칙해 속이 어수선한 날', bad: '짜지 않게', score: 85, benefits: ['속 중심 잡기', '구수한 안정감', '규칙적인 한 끼'] },
+  { name: '삼계탕', el: ['토', '화'], nature: '따뜻하게 보하는 성질', desc: '기력을 채워주는 든든한 한 그릇.', good: '기운이 허하고 지친 날', bad: '열이 많은 날엔 가볍게', score: 84, benefits: ['기력 보충', '따뜻하게 보함', '지친 몸 회복'] },
+  { name: '갈비탕', el: ['토', '수'], nature: '담백하고 보하는 성질', desc: '맑은 국물이 속을 편안히 채워줘요.', good: '속이 허하고 든든함이 필요한 날', bad: '기름은 걷어내고', score: 82, benefits: ['속을 편안히 채움', '맑은 보양', '부담 적은 단백질'] },
   // 금(쇠) — 결단·폐·정리
-  { name: '생선구이 백반', el: ['금', '수'], nature: '담백하고 깔끔한 성질', desc: '맑은 단백질이 호흡과 기운을 정리해줘요.', good: '텁텁하고 무거운 날', bad: '탄 부분은 피해서', score: 83 },
-  { name: '갈치조림', el: ['금', '수'], nature: '감칠맛 나고 촉촉한 성질', desc: '촉촉함이 마른 기운을 적셔줘요.', good: '건조하고 입맛 없는 날', bad: '짜면 밥과 함께 슴슴하게', score: 81 },
-  { name: '칼국수', el: ['금', '토'], nature: '따뜻하고 구수한 성질', desc: '뜨끈한 면이 속을 편안히 데워줘요.', good: '쌀쌀하고 든든한 게 당기는 날', bad: '밀가루 부담되면 조금씩', score: 80 },
+  { name: '생선구이 백반', el: ['금', '수'], nature: '담백하고 깔끔한 성질', desc: '맑은 단백질이 호흡과 기운을 정리해줘요.', good: '머리가 텁텁하고 몸이 무거운 날', bad: '탄 부분은 피해서', score: 83, benefits: ['맑은 단백질 보충', '호흡기 정돈', '몸속 노폐물 정리'] },
+  { name: '갈치조림', el: ['금', '수'], nature: '감칠맛 나고 촉촉한 성질', desc: '촉촉함이 마른 기운을 적셔줘요.', good: '몸이 건조하고 입맛이 없는 날', bad: '짜면 밥과 함께 슴슴하게', score: 81, benefits: ['마른 기운 적심', '촉촉한 감칠맛', '입맛 살리기'] },
+  { name: '칼국수', el: ['금', '토'], nature: '따뜻하고 구수한 성질', desc: '뜨끈한 면이 속을 편안히 데워줘요.', good: '쌀쌀하고 든든한 게 당기는 날', bad: '밀가루 부담되면 조금씩', score: 80, benefits: ['속을 데움', '구수한 포만감', '쌀쌀함 달래기'] },
 ];
 
 /* 문자열 → 시드 (결정적) */
@@ -57,6 +57,13 @@ function todayKeyLocal() {
   @returns { foodName, ohaengTags, suitabilityScore, summary, goodFor, cautionFor, focusEl, focusPlain }
 */
 const PLAIN = { 목: '나무', 화: '불', 토: '흙', 금: '쇠', 수: '물' };
+
+/* 받침 유무에 따라 은/는 조사를 붙인다(예: 홍삼→은, 칼국수→는). */
+function eunNeun(word) {
+  const c = (word || '').charCodeAt((word || '').length - 1);
+  if (!(c >= 0xAC00 && c <= 0xD7A3)) return word + '은(는)';
+  return word + (((c - 0xAC00) % 28) !== 0 ? '은' : '는');
+}
 
 export function recommendTodayFood(saju) {
   const elements = saju?.elements || {};
@@ -90,9 +97,10 @@ export function recommendTodayFood(saju) {
     ohaengTags: pick.el,
     nature: pick.nature,
     suitabilityScore: score,
-    summary: `${PLAIN[focusEl]} 기운이 살짝 부족한 오늘, ${pick.name}이(가) 그 기운을 채워줘요. ${pick.desc}`,
+    summary: `${eunNeun(pick.name)} ${pick.nature}을 지닌 한 그릇이에요. ${pick.desc} 오늘 ${PLAIN[focusEl]} 기운의 균형을 맞추기에 잘 어울려요.`,
     goodFor: pick.good,
     cautionFor: pick.bad,
+    benefits: pick.benefits || [],
     alternatives,
     focusEl,
     focusPlain: PLAIN[focusEl],
