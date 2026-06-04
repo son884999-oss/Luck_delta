@@ -27,14 +27,16 @@ export default async function handler(req, res) {
     }
     const j = await r.json();
     const docs = j.documents || [];
-    // https + 가로(또는 정사각)에 가까운 적당한 크기를 우선 → 카드 hero로 깔끔하게.
-    const pick = docs.find(d => /^https:/.test(d.image_url || '') && (d.width || 0) >= 400 && (d.width || 0) >= (d.height || 0) * 0.8)
-      || docs.find(d => /^https:/.test(d.image_url || ''))
+    // 썸네일(thumbnail_url)은 카카오 CDN https라 핫링크가 안정적 → 이걸 우선 사용.
+    // 원본 image_url은 외부 서버라 403(핫링크 차단)이 잦아 보조로만 둔다.
+    const pick = docs.find(d => /^https:/.test(d.thumbnail_url || '') && (d.width || 0) >= (d.height || 0) * 0.8)
+      || docs.find(d => /^https:/.test(d.thumbnail_url || ''))
       || docs[0];
     if (!pick) return res.status(200).json({ image: null, thumb: null });
     return res.status(200).json({
-      image: /^https:/.test(pick.image_url || '') ? pick.image_url : (pick.thumbnail_url || null),
+      image: pick.thumbnail_url || (/^https:/.test(pick.image_url || '') ? pick.image_url : null),
       thumb: pick.thumbnail_url || null,
+      count: docs.length,   // 디버깅: 검색 결과 개수
     });
   } catch (e) {
     return res.status(502).json({ error: e.message });

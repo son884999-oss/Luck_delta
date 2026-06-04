@@ -2966,6 +2966,7 @@ function FoodTable({ nickname, birth, onBack }) {
     fetchFoodImage(name).then(url => {
       if (!alive || !url) return;
       const im = new Image();
+      im.referrerPolicy = 'no-referrer';   // 일부 호스트의 referer 기반 핫링크 차단 회피
       im.onload = () => { if (alive) setFoodImg(url); };
       im.src = url;
     });
@@ -2992,7 +2993,7 @@ function FoodTable({ nickname, birth, onBack }) {
         border: `1px solid ${danger ? 'rgba(251,113,133,0.4)' : 'rgba(240,180,41,0.25)'}` }}>
       {foodImg ? (
         /* 메뉴 대표 사진 — 카드 전체 hero */
-        <img src={foodImg} alt={shown.foodName} draggable={false}
+        <img src={foodImg} alt={shown.foodName} draggable={false} referrerPolicy="no-referrer"
           className="absolute inset-0 w-full h-full object-cover animate-fade-up"
           onError={() => setFoodImg(null)}/>
       ) : (
