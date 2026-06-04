@@ -66,7 +66,7 @@ import {
   RitualReveal, ElementConstellation, Eyebrow, OrbitRings, GoldHairline,
 } from './ui/celestial.jsx';
 import { ensureFoodUser, analyzeFood, analyzeFoodLocal } from './lib/foodApi.js';
-import { recommendTodayFood, openNearbyRestaurants } from './lib/foodReco.js';
+import { recommendTodayFood, recommendTodayFoodAI, openNearbyRestaurants } from './lib/foodReco.js';
 import { hasPlacesKey, searchRestaurantsByDishes } from './lib/places.js';
 import { hasKakaoJsKey, loadKakaoMaps } from './lib/kakaoMap.js';
 import { BackBar, ErrorBox } from './ui/bits.jsx';
@@ -2863,6 +2863,7 @@ function FoodTable({ nickname, birth, onBack }) {
   const [places, setPlaces] = useState(null);    // 카카오 주변 식당(오행 매칭)
   const [placesLoading, setPlacesLoading] = useState(false);
   const [placesErr, setPlacesErr] = useState('');
+  const [aiReco, setAiReco] = useState(null);    // AI 오늘의 메뉴(진입 시 백그라운드 요청, 하루 캐시)
 
   // 내 기운(오행 분포) — '오늘의 기운' 진단 비주얼/문구의 근거
   const saju = useMemo(() => { try { return calculateSaju(birth); } catch (e) { return null; } }, [birth]);
@@ -2878,6 +2879,18 @@ function FoodTable({ nickname, birth, onBack }) {
       .catch(() => { if (alive) setLoadErr(true); });
     return () => { alive = false; };
   }, []);
+
+  // AI 오늘의 메뉴 — 진입하자마자 요청해서 '뚜껑 여는 동안' 받아온다(하루 1회 캐시, 실패 시 로컬 폴백).
+  useEffect(() => {
+    if (!saju || !hasApiKey()) return;
+    let alive = true;
+    const key = `cm_food_ai_${todayKey()}_${saju.ilju || ''}`;
+    try { const c = localStorage.getItem(key); if (c) { setAiReco(JSON.parse(c)); return; } } catch (e) {}
+    recommendTodayFoodAI(saju)
+      .then(r => { if (!alive) return; setAiReco(r); try { localStorage.setItem(key, JSON.stringify(r)); } catch (e) {} })
+      .catch(() => {}); // 실패하면 로컬 추천이 그대로 쓰인다
+    return () => { alive = false; };
+  }, [saju]);
 
   const doSearch = async () => {
     const query = q.trim();
@@ -2936,9 +2949,9 @@ function FoodTable({ nickname, birth, onBack }) {
     );
   };
 
-  // 오늘의 한 그릇 — 사주 오행으로 즉시 계산(네트워크 0). 검색 결과가 있으면 그걸 우선 표시.
+  // 오늘의 한 그릇 — 검색 결과 > AI 추천 > 즉시 로컬 추천(폴백) 순. AI는 진입 시 백그라운드로 받아둔다.
   const todayReco = useMemo(() => (saju ? recommendTodayFood(saju) : null), [saju]);
-  const shown = result || todayReco;
+  const shown = result || aiReco || todayReco;
   const isReco = !result;
   const cat = shown ? (FOOD_CAT[shown.category] || FOOD_CAT.C_GENERAL) : null;
   const danger = shown?.category === 'D_PSEUDO';

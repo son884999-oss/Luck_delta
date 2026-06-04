@@ -8,6 +8,8 @@
      의학적 진단이 아닙니다.
 ================================================================ */
 
+import { callGeminiRetry, hasApiKey } from './fortune.js';
+
 // 오행 상생(보강): KEY 를 낳아 주는(채워 주는) 오행
 //   목←수, 화←목, 토←화, 금←토, 수←금
 const PARENT = { 목: '수', 화: '목', 토: '화', 금: '토', 수: '금' };
@@ -106,6 +108,60 @@ export function recommendTodayFood(saju) {
     focusEl,
     focusPlain: PLAIN[focusEl],
     category: 'C_GENERAL',
+  };
+}
+
+/*
+  오늘의 메뉴 — AI(Gemini) 추천. 식탁 진입 시 호출해 카드를 뒤집는 동안 받아온다.
+  반환 모양은 recommendTodayFood()와 동일 → 카드가 그대로 렌더된다.
+  키가 없거나 실패하면 호출부에서 recommendTodayFood() 로컬 추천으로 폴백한다.
+*/
+export async function recommendTodayFoodAI(saju) {
+  if (!hasApiKey()) throw new Error('API 키가 없어요.');
+  const elements = saju?.elements || {};
+  const order = ['목', '화', '토', '금', '수'];
+  const focusEl = (saju?.lacking && saju.lacking[0])
+    || order.slice().sort((a, b) => (elements[a] || 0) - (elements[b] || 0))[0];
+  const focusPlain = PLAIN[focusEl];
+
+  const result = await callGeminiRetry({
+    system: `당신은 한국 음식과 영양에 밝은 따뜻한 식이 도우미입니다. 사용자 사주에서 부족한 '${focusPlain}(${focusEl})' 기운을 보강하는, 한국에서 흔히 사 먹을 수 있는 식당 메뉴 한 가지를 오늘의 메뉴로 추천하세요.
+- 메뉴는 실제 식당에서 파는 평범하고 구체적인 것(예: 갈치조림, 콩나물국밥, 된장찌개 백반). 특이하거나 비싼 건 피하세요.
+- 한자·전문용어 없이 순한글, 따뜻한 톤.
+- summary는 기운 이야기 말고 메뉴 자체를 침 고이게 소개하는 1~2문장.
+- nutrition은 실제 영양 사실에 기반해 1문장(과장·허위 금지). tip은 상식적인 섭취 팁 1문장. 의학적 진단은 금지.`,
+    user: `부족한 기운: ${focusPlain}. 오늘 채워주면 좋은 한 그릇을 추천해 주세요.`,
+    schema: {
+      type: 'OBJECT',
+      properties: {
+        foodName: { type: 'STRING' },                              // 메뉴 이름
+        nature: { type: 'STRING' },                                // 맛/식감 서술 (예: 담백하고 정갈한)
+        summary: { type: 'STRING' },                               // 메뉴 소개 1~2문장
+        nutrition: { type: 'STRING' },                             // 사실 기반 영양 정보 1문장
+        tip: { type: 'STRING' },                                   // 섭취 팁 1문장
+        benefits: { type: 'ARRAY', items: { type: 'STRING' } },    // 좋은 점 3개(각 4~10자)
+        alternatives: { type: 'ARRAY', items: { type: 'STRING' } },// 대안 메뉴 이름 3개
+        ohaengTags: { type: 'ARRAY', items: { type: 'STRING' } },  // 오행 키
+        suitabilityScore: { type: 'NUMBER' },                      // 60~98
+      },
+      required: ['foodName', 'nature', 'summary', 'nutrition', 'tip', 'benefits', 'suitabilityScore'],
+    },
+  }, 2);
+
+  return {
+    foodName: result.foodName,
+    ohaengTags: (result.ohaengTags && result.ohaengTags.length) ? result.ohaengTags : [focusEl],
+    nature: result.nature,
+    suitabilityScore: Math.min(98, Math.max(60, Math.round(result.suitabilityScore || 88))),
+    summary: result.summary,
+    nutrition: result.nutrition,
+    tip: result.tip,
+    benefits: (result.benefits || []).slice(0, 3),
+    alternatives: (result.alternatives || []).slice(0, 3),
+    focusEl,
+    focusPlain,
+    category: 'C_GENERAL',
+    source: 'ai',
   };
 }
 
