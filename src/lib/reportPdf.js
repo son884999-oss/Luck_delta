@@ -373,6 +373,17 @@ function renderReport(d, theme, cfg) {
   /* ── 운의 흐름(이번 분기 + 향후 3년) ── */
   .flow-sub { font-size:13pt; font-weight:700; color:${p.ink}; margin:24pt 0 16pt; padding-left:11pt; border-left:3px solid ${hexA(PRI, 0.55)}; }
 
+  /* ── 케미 지표(궁합) ── */
+  .chem { display:flex; flex-direction:column; gap:15pt; }
+  .chem-row { padding:14pt 18pt; border-radius:16px; background:${p.card}; border:1px solid ${p.hair}; border-left:3px solid ${hexA(PRI, 0.5)}; break-inside:avoid; }
+  .chem-head { display:flex; align-items:center; gap:11pt; margin-bottom:8pt; }
+  .chem-label { font-size:13.5pt; font-weight:700; color:${p.ink}; flex:0 0 auto; }
+  .cmeter { display:inline-flex; gap:5pt; margin-left:3pt; }
+  .cdot { width:11pt; height:11pt; border-radius:50%; background:${hexA(PRI, 0.13)}; border:1px solid ${hexA(PRI, 0.26)}; display:inline-block; }
+  .cdot.on { background:${PRI}; border-color:${PRI}; box-shadow:0 0 5px ${hexA(PRI, 0.5)}; }
+  .chem-grade { margin-left:auto; font-size:10pt; font-weight:700; color:${PRI}; background:${hexA(PRI, 0.12)}; border:1px solid ${hexA(PRI, 0.28)}; border-radius:20px; padding:2pt 12pt; }
+  .chem-text { font-size:12pt; line-height:1.7; color:${p.body}; margin:0; }
+
   /* ── 연도 카드 ── */
   .ycard { border:1.5px solid ${p.hair}; border-radius:18px; padding:15pt 20pt; margin-bottom:12pt; background:${p.card}; break-inside:avoid; border-left:4pt solid ${hexA(PRI, 0.55)}; box-shadow:0 2px 12px ${hexA(PRI,0.07)}; }
   .yhead { display:flex; align-items:center; gap:12pt; margin-bottom:9pt; }
@@ -613,13 +624,19 @@ export function renderGunghapReportPdfHtml(d, theme = 'dark') {
         </div>
         ${coupleRows}`;
 
-      // 1·3·5년 타임라인
-      const km = d.keyMoments || {};
-      const futureTimeline = `<div class="timeline">
-        ${phase('1년 후', '가까운 미래', km.y1)}
-        ${phase('3년 후', '관계의 성숙', km.y3)}
-        ${phase('5년 후', '깊어진 인연', km.y5)}
-      </div>`;
+      // 케미 지표 — 5축을 점수 미터 + 한 줄로 (막연한 미래 예언 대신 스캔 가능한 진단)
+      const ch = d.chemistry || {};
+      const CHEM = [['affection', '애정 표현'], ['talk', '대화 호흡'], ['values', '가치관'], ['rhythm', '생활 리듬'], ['recovery', '갈등 회복력']];
+      const lvOf = (v) => Math.max(0, Math.min(5, Math.round(Number(v) || 0)));
+      const meter = (lv) => `<span class="cmeter">${Array.from({ length: 5 }, (_, i) => `<span class="cdot${i < lv ? ' on' : ''}"></span>`).join('')}</span>`;
+      const chemGrade = (lv) => lv >= 5 ? '찰떡' : lv >= 4 ? '좋음' : lv >= 3 ? '무난' : lv >= 2 ? '노력 필요' : '주의';
+      const chemistry = `<div class="chem">${CHEM.map(([k, label]) => {
+        const c = ch[k] || {}; const lv = lvOf(c.level);
+        return `<div class="chem-row">
+          <div class="chem-head"><span class="chem-label serif">${label}</span>${meter(lv)}<span class="chem-grade">${chemGrade(lv)}</span></div>
+          <p class="chem-text">${esc(refine(c.text || ''))}</p>
+        </div>`;
+      }).join('')}</div>`;
 
       // 각자에 대한 조언
       const adviceBox = `
@@ -638,7 +655,7 @@ export function renderGunghapReportPdfHtml(d, theme = 'dark') {
         textSec('IV',  '갈등 패턴과 해소',      `${paras(d.conflictPattern, true)}${paras(d.conflictSolution)}`, SEC, '和'),
         d.relationshipStrength ? textSec('V', '이 관계만의 강점', paras(d.relationshipStrength, true), PRI, '光') : '',
         textSec('VI',  '함께 성장하는 방향',   paras(d.growthTogether, true),                    PRI, '共'),
-        textSec('VII', '1년·3년·5년 후 전망',  futureTimeline,                                   SEC, '來'),
+        textSec('VII', '두 사람의 케미 지표',  chemistry,                                        SEC, '診'),
         textSec('VIII',`${esc(d.nickname)}님과 ${esc(d.partnerName)}님께`, adviceBox,            PRI, '言'),
       ].filter(Boolean).join('');
     },

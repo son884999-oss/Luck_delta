@@ -403,13 +403,13 @@ export function buildReportPrompt(part, birth, userName, saju) {
     return {
       system: `${base}\n${userName}님을 위한 프리미엄 평생 사주 리포트의 도입부입니다.${ctx}
 
-분량 지침:
-- sajuReading: 빈 줄로 나뉜 4~5개 문단(합쳐 16문장 이상). 태어난 순간의 하늘·타고난 기질·인생의 큰 흐름을 서사적으로 풀어내세요. 단순 설명이 아니라 ${userName}님의 인생 이야기처럼 써야 합니다.
+밀도 지침 — 문장 수를 '채우려고' 비슷한 말을 늘리거나 반복하지 마세요(밀도가 낮아지는 게 가장 큰 감점). 추상적 미사여구보다 구체적 기질·상황으로. ★총평·성격·재능은 서로 다른 각도여야 하며 내용이 겹치면 안 됩니다.
+- sajuReading: 빈 줄로 나뉜 3~4문단(합쳐 10~12문장). 태어난 순간의 하늘·타고난 기질·인생의 큰 흐름을 ${userName}님의 인생 이야기처럼 서사적으로(여기서만 다루고 성격·재능과 겹치지 말 것).
 - iljuLine: ${userName}님만을 위한 시적인 한 문장(20자 내외, 따옴표 없이, 명언처럼 독립적으로 읽혀야 함).
-- ohaengReading: 오행 분포의 강함과 부족함이 ${userName}님의 성격·관계·삶의 패턴에 어떻게 나타나는지 5~6문장으로 구체적으로.
-- personalityText: 빈 줄로 나뉜 3~4문단(14문장 이상). 장점만이 아니라 내면의 갈등, 성장 방향도 따뜻하게 담아주세요.
+- ohaengReading: 오행 분포의 강함과 부족함이 성격·관계·삶의 패턴에 어떻게 나타나는지 5~6문장으로 구체적으로.
+- personalityText: 7~8문장(2~3문단). 장점뿐 아니라 내면의 갈등과 성장 방향을 — 총평과 다른 '성격'에 집중.
 - keywords: 성향을 압축한 키워드 6개(각 2~6자).
-- talentText: 재능의 씨앗이 어떻게 발현되는지 3문단(12문장 이상).
+- talentText: 6~7문장(2~3문단). 재능의 씨앗이 어떤 상황에서 발현되는지 구체적으로(성격과 겹치지 말 것).
 - talentFields: 어울리는 분야·재능 키워드 6개(각 2~10자).`,
       user: `${userName}님, ${fmtBirth(birth)} 출생, 일주 ${ilju}. 리포트 도입부(사주 총평·일주 한 줄·오행 해석·성격·재능)를 작성해 주세요.`,
       schema: S({
@@ -540,13 +540,13 @@ export async function generateGunghapReport(birth, birth2, userName = '천문', 
     callGeminiRetry({
       system: `${base}\n${userName}님과 ${partnerName}님의 궁합 심층 리포트 — 관계 본질·애정·소통 파트입니다.${ctx}
 
-분량 지침 — 각 항목은 리포트 한 페이지(A4)의 최소 2/3 이상을 채울 만큼 충분히 길고 구체적으로 쓰세요. 짧고 성기게 끝내지 말고 구체적 장면·예시를 넉넉히 담으세요. 여러 문단은 빈 줄(줄바꿈 두 번)로 구분합니다.
-- overview: 3문단(10문장 이상). 두 사람이 만나는 우주적 맥락, 서로에게 어떤 의미인지를 서사적으로.
-- loveDynamic: 3문단(12문장 이상). 애정이 싹트고 깊어지는 방식, 두 사람 사이의 화학작용을 구체적인 장면으로.
-- communicationStyle: 3문단(12문장 이상). 말하는 방식의 차이, 오해가 생기는 구조, 잘 통하는 주제를 실제처럼.
-- conflictPattern: 3문단(10문장 이상). 두 사람이 반복하기 쉬운 갈등 유형 2~3가지를 구체적 상황으로.
-- conflictSolution: 6~7문장. 갈등 유형마다 실질적인 화해·소통 전략을 따뜻하게.
-- relationshipStrength: 3문단(10문장 이상). 이 관계만의 특별한 강점, 두 사람이 함께일 때 더 빛나는 것.`,
+밀도 지침 — 정해진 문장 수를 '채우려고' 비슷한 말을 늘리거나 반복하지 마세요(그게 가장 큰 감점입니다). '흐름에 몸을 맡기듯', '조화를 이루며' 같은 추상적 비유 대신 실제 행동·상황·장면("같이 여행 계획을 짤 때", "한쪽이 침묵으로 화를 표현할 때")으로 쓰세요. ★각 항목은 서로 다른 각도를 다뤄야 하며, 다른 항목에서 한 말을 되풀이하지 마세요. 여러 문단은 빈 줄(줄바꿈 두 번)로 구분합니다.
+- overview: 5~6문장. 두 사람이 어떤 점에서 끌리고 어떤 점에서 부딪히는지 — 관계의 '핵심 한 가지'를 또렷이.
+- loveDynamic: 5~6문장. 애정이 깊어지는 구체적 계기와, 식기 쉬운 순간을 장면으로.
+- communicationStyle: 5~6문장. 말이 잘 통하는 주제 vs 오해가 생기는 구조를 대비해서.
+- conflictPattern: 갈등 유형 2~3가지, 각 2문장(상황 + 왜 그런지). 나열식으로 또렷이.
+- conflictSolution: 4~5문장. 위 갈등마다 1:1로 대응되는 실질적 화해 행동을.
+- relationshipStrength: 4~5문장. 다른 항목에 없는, 이 관계만의 강점 하나를 깊게.`,
       user: `${pairCtx}\n두 사람 관계의 본질, 애정 역학, 소통 방식, 갈등 패턴과 해소법, 관계의 강점을 작성해 주세요.`,
       schema: S({
         overview: STR, loveDynamic: STR, communicationStyle: STR,
@@ -557,20 +557,27 @@ export async function generateGunghapReport(birth, birth2, userName = '천문', 
     callGeminiRetry({
       system: `${base}\n${userName}님과 ${partnerName}님의 궁합 심층 리포트 — 미래·성장 파트입니다.${ctx}
 
-분량 지침 — 각 항목은 리포트 한 페이지(A4)의 최소 2/3 이상을 채울 만큼 충분히 길고 구체적으로 쓰세요. 짧고 성기게 끝내지 말고 구체적 장면·예시를 넉넉히 담으세요. 여러 문단은 빈 줄(줄바꿈 두 번)로 구분합니다.
-- growthTogether: 3문단(12문장 이상). 함께 성장할 수 있는 방향, 서로에게서 배울 수 있는 것, 공동의 목표.
-- keyMoments{y1,y3,y5}: 각 4~5문장. 1년·3년·5년 후 관계의 모습, 변화의 계기, 어떻게 가꾸면 좋은지.
-- compatibilityScore: 두 사람 궁합 점수(1~100, 오행 상생/상극 기반으로 계산).
-- adviceForA: 5~6문장. ${userName}님에게만 주는 개인 조언(상대방을 이해하는 방법, 더 좋은 파트너가 되는 법).
-- adviceForB: 5~6문장. ${partnerName}님에게만 주는 개인 조언.
+밀도 지침 — 문장 수를 채우려 비슷한 말을 반복하지 마세요. 추상적 비유 대신 실제 행동·상황으로. ★각 항목은 서로 다른 각도를 다루고 되풀이하지 마세요. 여러 문단은 빈 줄로 구분합니다.
+- growthTogether: 5~6문장. 서로에게서 배울 점과 함께 세울 구체적 공동 목표를.
+- chemistry: 두 사람의 케미를 5개 지표로 진단합니다. 각 지표는 level(1~5 정수, 5가 가장 잘 맞음)과 text(★단 1문장, 두 사람 오행/기질에 근거해 왜 그 점수인지 구체적으로 — '둘 다 표현이 서툴러 마음이 늦게 닿아요'처럼). 다섯 지표는 서로 다른 면을 봐야 하며 점수도 적당히 달라야 합니다(전부 4~5점 금지):
+  · affection(애정 표현) · talk(대화 호흡) · values(가치관·인생관) · rhythm(생활 리듬·속도) · recovery(갈등 회복력)
+- compatibilityScore: 두 사람 궁합 점수(1~100, 오행 상생/상극 기반으로 계산). 위 chemistry 5지표와 모순되지 않게.
+- adviceForA: 4~5문장. ${userName}님에게만 주는 개인 조언(상대방을 이해하는 방법, 더 좋은 파트너가 되는 법).
+- adviceForB: 4~5문장. ${partnerName}님에게만 주는 개인 조언.
 - closing: 3~4문장. 두 사람이 함께하는 여정을 응원하는 시적이고 따뜻한 맺음말(따옴표 없이).`,
-      user: `${pairCtx}\n함께 성장하는 방향, 1·3·5년 후 관계 전망, 궁합 점수, 각자에 대한 조언, 맺음말을 작성해 주세요.`,
+      user: `${pairCtx}\n함께 성장하는 방향, 두 사람의 케미 5대 지표 진단, 궁합 점수, 각자에 대한 조언, 맺음말을 작성해 주세요.`,
       schema: S({
         growthTogether: STR,
-        keyMoments: S({ y1: STR, y3: STR, y5: STR }, ['y1','y3','y5']),
+        chemistry: S({
+          affection: S({ level: NUM, text: STR }, ['level','text']),
+          talk:      S({ level: NUM, text: STR }, ['level','text']),
+          values:    S({ level: NUM, text: STR }, ['level','text']),
+          rhythm:    S({ level: NUM, text: STR }, ['level','text']),
+          recovery:  S({ level: NUM, text: STR }, ['level','text']),
+        }, ['affection','talk','values','rhythm','recovery']),
         compatibilityScore: NUM,
         adviceForA: STR, adviceForB: STR, closing: STR,
-      }, ['growthTogether','keyMoments','compatibilityScore','adviceForA','adviceForB','closing']),
+      }, ['growthTogether','chemistry','compatibilityScore','adviceForA','adviceForB','closing']),
     }),
   ]);
 
@@ -606,15 +613,15 @@ export async function generateStudyReport(birth, userName = '천문') {
     callGeminiRetry({
       system: `${base}\n${userName}님을 위한 '학습 상세 리포트'의 기질·전략 파트입니다.${ctx}
 
-분량 지침 — 각 항목은 리포트 한 페이지(A4)의 최소 2/3 이상을 채울 만큼 충분히 길고 구체적으로 쓰세요. 절대 짧고 성기게 끝내지 말고, 추상적 설명 대신 구체적 장면·예시·비유를 넉넉히 담아 빈 공간이 남지 않게 합니다. 여러 문단은 빈 줄(줄바꿈 두 번)로 또렷이 구분하세요.
-- brainTypeDesc: 12문장 이상(3~4문단). ${userName}님만의 두뇌 특성, 정보를 받아들이고 처리하는 방식, 어떤 상황에서 두뇌가 최고로 작동하는지 구체적으로.
-- subjectStrengths: 4문단(14문장 이상). 잘 맞는 과목의 이유와 접근법, 주의할 과목과 극복 전략.
-- studyMethod: 4문단(14문장 이상). ${userName}님에게 맞는 공부법을 단계별로, 절대 하면 안 되는 공부법도 포함.
-- bestTime.morning/afternoon/evening: 각 4~5문장. 그 시간대의 두뇌 상태와 최적의 학습 활동을 구체적인 예와 함께.
-- environment: 3문단(12문장 이상). 집중이 잘 되는 공간·소리·온도·조명·자리 배치 등을 구체적인 장면으로.
-- memoryTips: 3문단(12문장 이상). 기억력을 높이는 ${userName}님만의 방법, 암기가 잘 되는 상황과 잘 안 되는 상황을 예시로.
-- slumpRecovery: 3문단(10문장 이상). 의욕이 바닥날 때 ${userName}님에게 맞는 회복법을 단계별로.
-- distractionPatterns: 3문단(12문장 이상). ${userName}님이 공부할 때 반복적으로 빠지기 쉬운 방해 패턴 2~3가지를 구체적 상황으로(예: '중요한 시험 전날 정리하고 싶은 충동', '이해될 때까지 한 문제에 매달리다 시간을 쓰는 경향'). 각 패턴마다 왜 그렇게 되는지 사주 기운으로 설명하고, 빠져나오는 현실적인 방법도 따뜻하게 덧붙여 주세요. distractionKeywords: 이 패턴을 압축하는 키워드 3개(각 4~8자, 예: '완벽주의 함정', '딴짓의 유혹').`,
+밀도 지침 — 정해진 문장 수를 '채우려고' 비슷한 말을 늘리거나 반복하지 마세요(그게 가장 큰 감점입니다). 추상적 설명 대신 학생이 바로 따라 할 수 있는 구체적 행동·상황("형광펜 대신 빈 종이에 외운 걸 적어보기", "밤 11시 이후엔 새 단원 시작 금지")으로 쓰세요. ★각 항목은 서로 다른 각도를 다뤄야 합니다 — 공부법·학습 환경·기억력은 내용이 겹치지 않게 또렷이 구분하세요. 여러 문단은 빈 줄(줄바꿈 두 번)로 구분합니다.
+- brainTypeDesc: 5~6문장. ${userName}님 두뇌가 정보를 받아들이는 방식과, 최고로 작동하는 한 가지 상황을 또렷이.
+- subjectStrengths: 5~6문장. 잘 맞는 과목 1~2개의 이유 + 주의할 과목 1개의 극복법(다른 과목 나열 금지).
+- studyMethod: 단계별 6~7문장. ${userName}님에게 맞는 공부법과, 절대 하면 안 되는 공부법 1개.
+- bestTime.morning/afternoon/evening: 각 2~3문장. 그 시간대 두뇌 상태와 그때 할 학습 활동 1가지.
+- environment: 4~5문장. 공간·소리·자리 등 '환경'에만 집중(공부법과 겹치지 말 것).
+- memoryTips: 4~5문장. 암기가 잘 되는 상황과 안 되는 상황을 대비한 ${userName}님만의 방법.
+- slumpRecovery: 4~5문장. 의욕이 바닥날 때 회복하는 단계별 행동.
+- distractionPatterns: 방해 패턴 2~3가지를 각 2~3문장(상황 + 왜 그런지 + 빠져나오는 법). 예: '시험 전날 책상 정리 충동', '한 문제에 매달려 시간 쓰는 경향'. distractionKeywords: 이 패턴을 압축한 키워드 3개(각 4~8자).`,
       user: `${userName}님, ${fmtBirth(birth)} 출생, 일주 ${ilju}. 타고난 두뇌 유형·잘 맞는 과목 적성·최적 공부법·집중 시간대·학습 환경·기억력 강화·슬럼프 극복·집중 방해 패턴을 작성해 주세요.`,
       schema: S({
         brainType: STR, brainTypeDesc: STR, brainKeywords: ARR,
@@ -627,10 +634,10 @@ export async function generateStudyReport(birth, userName = '천문') {
     callGeminiRetry({
       system: `${base}\n'학습 상세 리포트'의 시기 전략·응원 파트입니다.${ctx}
 
-분량 지침 — 각 항목은 리포트 한 페이지(A4)의 최소 2/3 이상을 채울 만큼 충분히 길고 구체적으로 쓰세요. 짧고 성기게 끝내지 말고 구체적 장면·예시를 넉넉히 담으세요. 여러 문단은 빈 줄(줄바꿈 두 번)로 구분합니다.
-- monthlyEnergy: 3문단(12문장 이상). 이번 달·앞으로 수개월의 학습 에너지 흐름, 언제 집중해야 하고 언제 쉬어야 하는지를 시기별로 구체적으로.
-- examStrategy.d100/d60/d30/d7: 각 4~5문장. 그 시기에 해야 할 것, 하면 안 되는 것, 멘탈 관리법을 구체적으로.
-- finalAdvice: 4문단(14문장 이상). ${userName}님이 공부하면서 기억해야 할 본질적인 것들, 성적보다 중요한 것들도 포함.
+밀도 지침 — 문장 수를 채우려 비슷한 말을 반복하지 마세요. 추상적 설명 대신 바로 실천할 행동으로. ★각 항목은 서로 다른 각도를 다루고 되풀이하지 마세요. 여러 문단은 빈 줄로 구분합니다.
+- monthlyEnergy: 5~6문장. 앞으로 수개월 중 언제 몰아붙이고 언제 쉴지를 시기별로 또렷이.
+- examStrategy.d100/d60/d30/d7: 각 2~3문장. 그 시기에 할 것 1가지 + 하면 안 되는 것 1가지.
+- finalAdvice: 6~7문장. 성적보다 중요한 것을 포함해, ${userName}님이 시험기에 붙들 본질 한두 가지를.
 - closingQuote: ${userName}님에게만 건네는 한 문장의 응원(따옴표 없이, 시험장 입구에 붙여도 좋을 문장).`,
       user: `${userName}님, 일주 ${ilju}. 이번 시기 학습 에너지, 시험 단계별(D-100 이상·D-60·D-30·D-7) 전략, 마무리 응원과 한마디를 작성해 주세요.`,
       schema: S({
