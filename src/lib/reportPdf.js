@@ -368,6 +368,10 @@ function renderReport(d, theme, cfg) {
   .tl-body { flex:1; padding-bottom:17pt; }
   .tl-label { font-size:16.5pt; font-weight:700; color:${p.ink}; margin-bottom:9pt; }
   .tl-label .tl-sub { font-size:9.5pt; font-weight:400; color:${p.dim}; margin-left:7pt; }
+  .tl-label .tl-mark { font-size:9pt; font-weight:700; color:${PRI}; background:${hexA(PRI, 0.12)}; border:1px solid ${hexA(PRI, 0.30)}; border-radius:20px; padding:2pt 11pt; margin-left:10pt; vertical-align:middle; }
+
+  /* ── 운의 흐름(이번 분기 + 향후 3년) ── */
+  .flow-sub { font-size:13pt; font-weight:700; color:${p.ink}; margin:24pt 0 16pt; padding-left:11pt; border-left:3px solid ${hexA(PRI, 0.55)}; }
 
   /* ── 연도 카드 ── */
   .ycard { border:1.5px solid ${p.hair}; border-radius:18px; padding:15pt 20pt; margin-bottom:12pt; background:${p.card}; break-inside:avoid; border-left:4pt solid ${hexA(PRI, 0.55)}; box-shadow:0 2px 12px ${hexA(PRI,0.07)}; }
@@ -511,30 +515,36 @@ export function renderReportPdfHtml(d, theme = 'dark') {
           ${d.iljuLine ? `<div class="ov-line serif">“${esc(refine(d.iljuLine))}”</div>` : ''}
         </div>
         ${summaryBox}`;
-      // 분기별(4) — 12개월 대신 한 페이지에 가독성 좋게 담긴다
-      const quarterRows = (d.quarters || []).map((q, idx) => `
-        <div class="mrow" style="background:${hexA(PRI, idx % 2 === 0 ? 0.12 : 0.08)};border-left:3px solid ${hexA(PRI, 0.5)}">
+      // 운의 흐름 = '이번 분기' 카드 1개 + 향후 3년 타임라인 (한 페이지에 담긴다)
+      const cq = d.currentQuarter || (d.quarters || [])[0] || null;
+      const curQuarterCard = cq ? `
+        <div class="mrow" style="background:${hexA(PRI, 0.11)};border-left:3px solid ${hexA(PRI, 0.5)}">
           <div class="m-header">
-            <span class="m-med serif">${idx + 1}</span>
-            <span class="q-title serif">${esc(q.label)}<span class="q-range">${esc(q.range || '')}</span></span>
-            ${q.theme ? `<span class="m-theme" style="color:${PRI};background:${hexA(PRI, 0.12)};border:1px solid ${hexA(PRI, 0.28)};margin-left:auto">${esc(q.theme)}</span>` : ''}
+            <span class="m-med serif">季</span>
+            <span class="q-title serif">이번 분기 · ${esc(cq.label)}<span class="q-range">${esc(cq.range || '')}</span></span>
+            ${cq.theme ? `<span class="m-theme" style="color:${PRI};background:${hexA(PRI, 0.12)};border:1px solid ${hexA(PRI, 0.28)};margin-left:auto">${esc(cq.theme)}</span>` : ''}
           </div>
-          <span class="m-text">${esc(refine(q.text))}</span>
-          ${(q.focus || q.luckyKeyword) ? `<div class="m-tags">
-            ${q.focus ? `<span class="m-tag" style="color:${PRI}">✦ ${esc(q.focus)}</span>` : ''}
-            ${q.luckyKeyword ? `<span class="m-tag" style="color:${SEC}">★ ${esc(q.luckyKeyword)}</span>` : ''}
+          <span class="m-text">${esc(refine(cq.text))}</span>
+          ${(cq.focus || cq.luckyKeyword) ? `<div class="m-tags">
+            ${cq.focus ? `<span class="m-tag" style="color:${PRI}">✦ ${esc(cq.focus)}</span>` : ''}
+            ${cq.luckyKeyword ? `<span class="m-tag" style="color:${SEC}">★ ${esc(cq.luckyKeyword)}</span>` : ''}
           </div>` : ''}
-        </div>`).join('');
-      const quarters = `<div class="months">${quarterRows}</div>`;
+        </div>` : '';
+      const yearTimeline = `<div class="timeline">${(d.years || []).map(y => `
+        <div class="tl-row">
+          <div class="tl-axis"><span class="tl-node"${y.mark ? ` style="border-color:${PRI};background:${hexA(PRI, 0.32)};box-shadow:0 0 0 3pt ${hexA(PRI, 0.16)}"` : ''}></span></div>
+          <div class="tl-body">
+            <div class="tl-label serif">${esc(y.label)}<span class="tl-sub">${esc(y.keyword)}</span>${y.mark ? `<span class="tl-mark">★ ${esc(y.mark)}</span>` : ''}</div>
+            <p class="body" style="margin-bottom:0">${esc(refine(y.text))}</p>
+          </div>
+        </div>`).join('')}</div>`;
+      const flow = `${curQuarterCard}<div class="flow-sub serif">향후 3년의 흐름</div>${yearTimeline}`;
       const adviceTips = [['재물', d.wealth], ['애정', d.love], ['직업', d.career], ['건강', d.health]]
         .map(([k, a]) => [k, a && a.tip]).filter(x => x[1]);
       const checklistBox = adviceTips.length ? `
         <div class="checklist"><div class="checklist-k">오늘부터의 실천 체크리스트</div>
           ${adviceTips.map(([k, t]) => `<div class="check-item"><div class="check-box">✓</div><div class="check-text"><span class="check-area">${esc(k)}</span>${esc(refine(t))}</div></div>`).join('')}
         </div>` : '';
-      const yearItems = (d.years || []).map(y => ({ label: y.label, kw: y.keyword, text: y.text }));
-      // 향후 5년 한 페이지(자동 맞춤이 한 장에 담는다)
-      const years = `<div class="years">${cards(yearItems)}</div>`;
       return [
         textSec('', '한눈에 보기', overviewInner, PRI, '覽'),
         textSec('I', '사주 총평', paras(d.sajuReading, true), PRI, '命'),
@@ -544,10 +554,9 @@ export function renderReportPdfHtml(d, theme = 'dark') {
         area('V', '애정과 인연', d.love, ELEM['화'].color, '緣'),
         area('VI', '직업과 사회운', d.career, ELEM['목'].color, '職'),
         area('VII', '건강운', d.health, ELEM['수'].color, '健'),
-        textSec('VIII', `${esc(d.year)}년 분기별 운세`, quarters, PRI, '季'),
-        textSec('IX', '초년 · 중년 · 말년 인생 흐름', `<div class="timeline">${phase('초년', '태어나서 30대까지', d.lifeEarly)}${phase('중년', '40~60대', d.lifeMid)}${phase('말년', '60대 이후', d.lifeLate)}</div>`, SEC, '流'),
-        textSec('X', '향후 5년 운세', years, PRI, '年'),
-        textSec('XI', `${esc(d.nickname)}님을 위한 조언`, `${paras(d.advice, true)}${checklistBox}`, SEC, '言'),
+        textSec('VIII', '초년 · 중년 · 말년 인생 흐름', `<div class="timeline">${phase('초년', '태어나서 30대까지', d.lifeEarly)}${phase('중년', '40~60대', d.lifeMid)}${phase('말년', '60대 이후', d.lifeLate)}</div>`, SEC, '流'),
+        textSec('IX', `${esc(d.year)}년, 그리고 앞으로의 흐름`, flow, PRI, '運'),
+        textSec('X', `${esc(d.nickname)}님을 위한 조언`, `${paras(d.advice, true)}${checklistBox}`, SEC, '言'),
       ].join('');
     },
   });
