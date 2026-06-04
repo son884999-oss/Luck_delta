@@ -67,7 +67,7 @@ import {
 } from './ui/celestial.jsx';
 import { ensureFoodUser, analyzeFood, analyzeFoodLocal } from './lib/foodApi.js';
 import { recommendTodayFood, recommendTodayFoodAI, openNearbyRestaurants } from './lib/foodReco.js';
-import { hasPlacesKey, searchRestaurantsByDishes } from './lib/places.js';
+import { hasPlacesKey, searchRestaurantsByDishes, fetchFoodImage } from './lib/places.js';
 import { hasKakaoJsKey, loadKakaoMaps } from './lib/kakaoMap.js';
 import { BackBar, ErrorBox } from './ui/bits.jsx';
 import { dailyLine, getDiary, setDiaryEntry, deleteDiaryEntry, MOODS, isoDate } from './lib/diary.js';
@@ -2864,6 +2864,7 @@ function FoodTable({ nickname, birth, onBack }) {
   const [placesLoading, setPlacesLoading] = useState(false);
   const [placesErr, setPlacesErr] = useState('');
   const [aiReco, setAiReco] = useState(null);    // AI 오늘의 메뉴(진입 시 백그라운드 요청, 하루 캐시)
+  const [foodImg, setFoodImg] = useState(null);  // 메뉴 대표 사진(카카오 이미지 검색, 프리로드 후 표시)
 
   // 내 기운(오행 분포) — '오늘의 기운' 진단 비주얼/문구의 근거
   const saju = useMemo(() => { try { return calculateSaju(birth); } catch (e) { return null; } }, [birth]);
@@ -2956,6 +2957,21 @@ function FoodTable({ nickname, birth, onBack }) {
   const cat = shown ? (FOOD_CAT[shown.category] || FOOD_CAT.C_GENERAL) : null;
   const danger = shown?.category === 'D_PSEUDO';
 
+  // 메뉴 사진 — 메뉴명이 정해지면 카카오 이미지 검색 → 프리로드 성공 시에만 표시(깨진 이미지 방지).
+  useEffect(() => {
+    const name = shown?.foodName;
+    setFoodImg(null);
+    if (!name) return;
+    let alive = true;
+    fetchFoodImage(name).then(url => {
+      if (!alive || !url) return;
+      const im = new Image();
+      im.onload = () => { if (alive) setFoodImg(url); };
+      im.src = url;
+    });
+    return () => { alive = false; };
+  }, [shown?.foodName]);
+
 
   // 음식별 대표 이모지 — 운세·오행 느낌 대신 식탁 느낌
   const FOOD_EMOJI = { 국물:['🍲','🥘'], 밥:['🍚','🥗'], 나물:['🥬','🫘'], 두부:['🫕','🥢'],
@@ -2971,32 +2987,47 @@ function FoodTable({ nickname, birth, onBack }) {
 
   // 공개될 카드 — 따뜻한 식탁 분위기, 궤도 링 완전 제거
   const foodCard = shown && (
-    <div className="w-full h-full rounded-[24px] overflow-hidden relative flex flex-col items-center justify-center text-center px-6"
+    <div className="w-full h-full rounded-[24px] overflow-hidden relative flex flex-col"
       style={{ background: `linear-gradient(160deg, #1a120a 0%, #120d07 60%, #0e0b08 100%)`,
         border: `1px solid ${danger ? 'rgba(251,113,133,0.4)' : 'rgba(240,180,41,0.25)'}` }}>
-      {/* 따뜻한 빛 — 수증기처럼 퍼지는 중앙 글로우 */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background:`radial-gradient(ellipse 70% 55% at 50% 45%, rgba(240,180,41,0.18) 0%, transparent 70%)`}}/>
-      {/* 식재료 결 텍스처 — 가로 얇은 줄 */}
-      {[20,35,52,68,83].map(y => (
-        <div key={y} className="absolute left-0 right-0 pointer-events-none"
-          style={{ top:`${y}%`, height:1, background:'rgba(240,180,41,0.04)' }}/>
-      ))}
-      {/* 음식 이모지 — 크고 자연스럽게 */}
-      <span className="relative text-[52px] mb-1" style={{ filter:'drop-shadow(0 4px 12px rgba(240,180,41,0.3))' }}>{foodEmoji}</span>
-      <span className="relative text-[11px] font-bold tracking-[0.25em] mb-1.5" style={{ color:'rgba(240,180,41,0.7)' }}>오행 식탁</span>
-      <p className="relative serif text-[26px] font-black leading-tight break-keep" style={{ color:'#fff5e4' }}>{shown.foodName}</p>
-      {/* 성질 태그 */}
-      {shown.nature && (
-        <span className="relative mt-2.5 text-[12px] font-medium px-3 py-1 rounded-full"
-          style={{ color:'rgba(240,180,41,0.9)', background:'rgba(240,180,41,0.12)', border:'1px solid rgba(240,180,41,0.28)' }}>
-          {shown.nature}
-        </span>
+      {foodImg ? (
+        /* 메뉴 대표 사진 — 카드 전체 hero */
+        <img src={foodImg} alt={shown.foodName} draggable={false}
+          className="absolute inset-0 w-full h-full object-cover animate-fade-up"
+          onError={() => setFoodImg(null)}/>
+      ) : (
+        <>
+          {/* 따뜻한 빛 — 수증기처럼 퍼지는 중앙 글로우 */}
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background:`radial-gradient(ellipse 70% 55% at 50% 45%, rgba(240,180,41,0.18) 0%, transparent 70%)`}}/>
+          {/* 식재료 결 텍스처 — 가로 얇은 줄 */}
+          {[20,35,52,68,83].map(y => (
+            <div key={y} className="absolute left-0 right-0 pointer-events-none"
+              style={{ top:`${y}%`, height:1, background:'rgba(240,180,41,0.04)' }}/>
+          ))}
+        </>
       )}
-      {/* 적합도 */}
-      <div className="relative mt-2.5 flex items-baseline gap-1">
-        <span className="serif text-[28px] font-black tabular-nums" style={{ color: danger ? '#fb7185' : 'rgba(240,180,41,0.95)' }}>{shown.suitabilityScore}%</span>
-        <span className="text-[11px]" style={{ color:'rgba(255,255,255,0.45)' }}>기운 적합</span>
+      {/* 텍스트 가독성 그라데이션 — 사진이 있을 때 하단을 어둡게 */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: foodImg
+        ? 'linear-gradient(to top, rgba(8,6,4,0.95) 6%, rgba(8,6,4,0.6) 36%, rgba(8,6,4,0.12) 64%, transparent 100%)'
+        : 'transparent' }}/>
+      {/* 콘텐츠 — 사진이면 하단 정렬, 없으면 중앙(이모지 포함) */}
+      <div className={`relative z-10 flex flex-col items-center text-center px-6 w-full ${foodImg ? 'mt-auto pb-6' : 'my-auto'}`}>
+        {!foodImg && <span className="text-[52px] mb-1" style={{ filter:'drop-shadow(0 4px 12px rgba(240,180,41,0.3))' }}>{foodEmoji}</span>}
+        <span className="text-[11px] font-bold tracking-[0.25em] mb-1.5" style={{ color:'rgba(240,180,41,0.8)' }}>오행 식탁</span>
+        <p className="serif text-[26px] font-black leading-tight break-keep" style={{ color:'#fff5e4', textShadow: foodImg ? '0 2px 14px rgba(0,0,0,0.85)' : 'none' }}>{shown.foodName}</p>
+        {/* 성질 태그 */}
+        {shown.nature && (
+          <span className="mt-2.5 text-[12px] font-medium px-3 py-1 rounded-full"
+            style={{ color:'rgba(240,180,41,0.95)', background:'rgba(240,180,41,0.16)', border:'1px solid rgba(240,180,41,0.34)' }}>
+            {shown.nature}
+          </span>
+        )}
+        {/* 적합도 */}
+        <div className="mt-2.5 flex items-baseline gap-1">
+          <span className="serif text-[28px] font-black tabular-nums" style={{ color: danger ? '#fb7185' : 'rgba(240,180,41,0.98)', textShadow: foodImg ? '0 2px 10px rgba(0,0,0,0.85)' : 'none' }}>{shown.suitabilityScore}%</span>
+          <span className="text-[11px]" style={{ color:'rgba(255,255,255,0.6)' }}>기운 적합</span>
+        </div>
       </div>
     </div>
   );
