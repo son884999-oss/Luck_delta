@@ -1,0 +1,36 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# 보안 설정 추가
+.env
+.env.*
+
+# 개발용 스크린샷/리포트 산출물 (gen-report.mjs · preview-*.mjs 등)
+rr_*.png
+s_*.png
+email_*.png
+report-*.pdf
+screenshots/issue_*.png
+screenshots/audit/
+screenshots/_*.png

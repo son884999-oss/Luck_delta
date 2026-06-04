@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/export-audio.mjs)",
+      "Bash(echo \"--- exit $? ---\")",
+      "Bash(docker --version)",
+      "Bash(docker compose *)",
+      "Bash(git check-ignore *)"
+    ]
+  }
+}

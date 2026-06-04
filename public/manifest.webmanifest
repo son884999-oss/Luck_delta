@@ -1,0 +1,16 @@
+{
+  "name": "천문 · AI 명리학 운세",
+  "short_name": "천문",
+  "description": "태어난 순간의 하늘을 읽어 오늘의 운세부터 평생 사주까지. 가장 다정하고 아름다운 AI 운세 의식.",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070a16",
+  "theme_color": "#070a16",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

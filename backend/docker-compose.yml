@@ -1,0 +1,42 @@
+# ================================================================
+# Chunmun Astro-Wellness — 로컬 인프라 (PostgreSQL + Redis)
+#   docker compose up -d  →  앱은 backend/.env 의 DB_*/REDIS_* 로 접속
+# ================================================================
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: chunmun-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-chunmun}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-chunmun_pw}
+      POSTGRES_DB: ${DB_NAME:-chunmun}
+      TZ: Asia/Seoul
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - chunmun_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-chunmun} -d ${DB_NAME:-chunmun}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: chunmun-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - chunmun_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  chunmun_pgdata:
+  chunmun_redisdata:

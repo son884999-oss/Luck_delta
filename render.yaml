@@ -1,0 +1,59 @@
+# ================================================================
+# Chunmun 백엔드 — Render Blueprint (원클릭 배포)
+# Render 대시보드 → New → Blueprint → 이 저장소 선택 → Apply.
+# Postgres + Key Value(Redis) + 웹서비스가 자동 생성/연결되고,
+# sync:false 인 시크릿 3개만 직접 입력하면 됩니다.
+# ================================================================
+services:
+  # Redis(Key Value) — 사용자 쿼리 캐시
+  - type: keyvalue
+    name: chunmun-redis
+    plan: free
+    ipAllowList: [] # 내부 연결만 허용
+
+  # NestJS 백엔드 (Docker)
+  - type: web
+    name: chunmun-backend
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/docs-json
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_SYNCHRONIZE
+        value: "true"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chunmun-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: chunmun-redis
+          property: connectionString
+      # 식품영양성분(data.go.kr) — 현행 FoodNtrCpntDbInfo02
+      - key: MFDS_FOOD_PROVIDER
+        value: datagokr
+      - key: MFDS_FOOD_DATAGOKR_URL
+        value: https://apis.data.go.kr/1471000/FoodNtrCpntDbInfo02/getFoodNtrCpntDbInq02
+      # 건강기능식품(식품안전나라) C003
+      - key: MFDS_HFI_SERVICE_ID
+        value: C003
+      - key: MFDS_PAGE_SIZE
+        value: "100"
+      - key: MFDS_DAILY_QUOTA
+        value: "1000"
+      # ▼▼ 시크릿 — 대시보드에서 값 입력(코드/깃에 안 올라감) ▼▼
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MFDS_FOOD_DATAGOKR_KEY
+        sync: false
+      - key: MFDS_API_KEY # 식품안전나라 hex 키(건강기능식품)
+        sync: false
+
+databases:
+  - name: chunmun-db
+    plan: free
