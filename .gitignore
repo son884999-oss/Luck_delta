@@ -34,3 +34,6 @@ report-*.pdf
 screenshots/issue_*.png
 screenshots/audit/
 screenshots/_*.png
+
+# Office 임시 잠금 파일(PowerPoint/Word 열려있을 때 생성)
+~$*

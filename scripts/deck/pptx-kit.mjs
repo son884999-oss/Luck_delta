@@ -91,15 +91,45 @@ export function makeKit(pptx, { theme = THEME, imageDir = 'screenshots', docName
     s.addText(footnote || `발표자료  ·  ${DATE}`, { x: 0, y: 6.7, w: '100%', align: 'center', fontFace: font, color: T.sub, fontSize: 12 });
   }
 
-  /* 좌측 이미지 패널 + 우측 □ 주요 내용 ▪글머리 */
+  /* 본문 슬라이드 —
+     · 이미지 1장(폰 캡처): 세로 거의 전체로 '크게' 좌측 배치 + 우측 머리글/글머리(이미지 작게 보이던 문제 해결)
+     · 이미지 2장 이상: 좌측 패널에 비교 배치 + 우측 글머리 */
   function content(s, { no, tag, title, bullets: items = [], images = [], note, wide = false } = {}) {
-    header(s, no, tag, title);
-    const PX = 0.6, PY = 2.15, PW = wide ? 7.4 : 5.0, PH = 4.65;
-    s.addShape(pptx.ShapeType.roundRect, { x: PX, y: PY, w: PW, h: PH, rectRadius: 0.06, fill: { color: T.panel }, line: { color: T.rule, width: 1 } });
-    placeImages(s, images, PX + 0.25, PY + 0.25, PW - 0.5, PH - 0.5);
-    const TX = PX + PW + 0.45, TW = W - 0.6 - (PX + PW + 0.45);
-    s.addText('□ 주요 내용', { x: TX, y: 2.2, w: TW, h: 0.4, fontFace: font, color: T.navy, fontSize: 14, bold: true });
-    bullets(s, items, TX, 2.7, TW, wide ? 14.5 : 15.5);
+    const imgs = (images || []).filter(has);
+
+    if (imgs.length >= 2) {
+      header(s, no, tag, title);
+      const PX = 0.6, PY = 2.1, PW = wide ? 7.7 : 5.6, PH = 4.8;
+      s.addShape(pptx.ShapeType.roundRect, { x: PX, y: PY, w: PW, h: PH, rectRadius: 0.06, fill: { color: T.panel }, line: { color: T.rule, width: 1 } });
+      placeImages(s, imgs, PX + 0.18, PY + 0.18, PW - 0.36, PH - 0.36);
+      const TX = PX + PW + 0.45, TW = W - 0.6 - (PX + PW + 0.45);
+      s.addText('□ 주요 내용', { x: TX, y: 2.2, w: TW, h: 0.4, fontFace: font, color: T.navy, fontSize: 14, bold: true });
+      bullets(s, items, TX, 2.7, TW, wide ? 14 : 14.5);
+      footer(s);
+      if (note) s.addNotes(note);
+      return;
+    }
+
+    // 0~1장 — 단일 스크린샷 대형 배치
+    s.background = { color: 'FFFFFF' };
+    pageNo++;
+    const ix = 0.7, iy = 0.55, IH = 6.35;
+    let imgRight = ix + 3.0;
+    if (imgs.length === 1) {
+      const r = ratio(imgs[0]); let h = IH, w = h * r;
+      const MAXW = 4.7; if (w > MAXW) { w = MAXW; h = w / r; }
+      s.addImage({ path: path(imgs[0]), x: ix, y: iy + (IH - h) / 2, w, h, shadow: { type: 'outer', color: '9AA3B2', opacity: 0.45, blur: 7, offset: 2, angle: 90 } });
+      imgRight = ix + w;
+    } else {
+      s.addText('(이미지 없음)', { x: ix, y: 3.4, w: 3.0, align: 'center', fontFace: font, color: T.sub, fontSize: 13 });
+    }
+    const TX = imgRight + 0.6, TW = W - 0.6 - TX;
+    s.addText(String(no).padStart(2, '0'), { x: TX, y: 0.55, w: 1.0, h: 0.6, fontFace: font, color: T.gold, fontSize: 28, bold: true, valign: 'middle' });
+    s.addText(tag, { x: TX + 0.92, y: 0.55, w: Math.max(1, TW - 0.92), h: 0.6, fontFace: font, color: T.sub, fontSize: 12, charSpacing: 1.5, valign: 'middle' });
+    s.addShape(pptx.ShapeType.line, { x: TX, y: 1.2, w: TW, h: 0, line: { color: T.navy, width: 1.5 } });
+    s.addText(title, { x: TX, y: 1.36, w: TW, h: 0.95, fontFace: font, color: T.navy, fontSize: 23, bold: true, valign: 'top' });
+    s.addText('□ 주요 내용', { x: TX, y: 2.55, w: TW, h: 0.4, fontFace: font, color: T.navy, fontSize: 14, bold: true });
+    bullets(s, items, TX, 3.05, TW, 15);
     footer(s);
     if (note) s.addNotes(note);
   }

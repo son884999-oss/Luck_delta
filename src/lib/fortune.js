@@ -438,20 +438,18 @@ export function buildReportPrompt(part, birth, userName, saju) {
     };
   }
 
-  if (part === 'months') {
-    const monthObj = S({ theme: STR, text: STR, focus: STR, luckyKeyword: STR }, ['theme','text','focus','luckyKeyword']);
-    const props = {}, req = [];
-    for (let i = 1; i <= 12; i++) { props['m' + i] = monthObj; req.push('m' + i); }
+  if (part === 'quarters') {
+    const qObj = S({ theme: STR, text: STR, focus: STR, luckyKeyword: STR }, ['theme','text','focus','luckyKeyword']);
     return {
-      system: `${base}\n프리미엄 리포트 — ${YEAR}년 12개월 월별 운세입니다.${ctx}
+      system: `${base}\n프리미엄 리포트 — ${YEAR}년 분기별(3개월 단위) 운세입니다.${ctx}
 
-각 달마다:
-- theme: 그 달을 한 마디로 압축하는 2~4자 키워드(예: '새 출발', '인내', '결실').
-- text: 2~3문장으로 달마다 다른 결. 무슨 일이 일어날 수 있는지와 어떻게 흘러가면 좋은지를 간결하게 제시하세요. 월마다 톤과 내용이 뚜렷이 달라야 합니다.
-- focus: 이달에 가장 집중해야 할 한 가지(10자 이내).
-- luckyKeyword: 이달의 행운을 가져다줄 키워드 한 단어(색·방향·사물 등, 5자 이내).`,
-      user: `${userName}님, 일주 ${ilju}. ${YEAR}년 1월부터 12월까지 월별 운세를 작성해 주세요.`,
-      schema: S(props, req),
+${YEAR}년을 4분기로 나눕니다(q1=1~3월, q2=4~6월, q3=7~9월, q4=10~12월). 각 분기마다:
+- theme: 그 분기를 한 마디로 압축하는 2~5자 키워드(예: '새 출발', '결실의 시기').
+- text: 3~4문장으로 그 분기의 전반적 흐름·기회·조심할 점을 구체적으로. 분기마다 톤과 내용이 뚜렷이 달라야 합니다.
+- focus: 그 분기에 집중할 한 가지(12자 이내).
+- luckyKeyword: 그 분기의 행운 키워드 한 단어(색·방향·사물 등, 6자 이내).`,
+      user: `${userName}님, 일주 ${ilju}. ${YEAR}년 1분기부터 4분기까지 분기별 운세를 작성해 주세요.`,
+      schema: S({ q1: qObj, q2: qObj, q3: qObj, q4: qObj }, ['q1', 'q2', 'q3', 'q4']),
     };
   }
 
@@ -477,17 +475,18 @@ export function buildReportPrompt(part, birth, userName, saju) {
 export async function generateReport(birth, userName = '천문') {
   const saju = calculateSaju(birth);
   const oh = OHAENG[saju.dayElem] || OHAENG['토'];
-  const [reading, fort, months, future] = await Promise.all([
+  const [reading, fort, quartersRaw, future] = await Promise.all([
     callGeminiRetry(buildReportPrompt('reading', birth, userName, saju)),
     callGeminiRetry(buildReportPrompt('fortunes', birth, userName, saju)),
-    callGeminiRetry(buildReportPrompt('months', birth, userName, saju)),
+    callGeminiRetry(buildReportPrompt('quarters', birth, userName, saju)),
     callGeminiRetry(buildReportPrompt('future', birth, userName, saju)),
   ]);
   const now = new Date();
   const YEAR = now.getFullYear();
-  const monthData = Array.from({ length: 12 }, (_, i) => {
-    const m = months['m' + (i + 1)] || {};
-    return { label: `${i + 1}월`, theme: m.theme || '', text: m.text || '', focus: m.focus || '', luckyKeyword: m.luckyKeyword || '' };
+  const QLABELS = [['1분기', '1~3월'], ['2분기', '4~6월'], ['3분기', '7~9월'], ['4분기', '10~12월']];
+  const quarters = QLABELS.map(([label, range], i) => {
+    const q = quartersRaw['q' + (i + 1)] || {};
+    return { label, range, theme: q.theme || '', text: q.text || '', focus: q.focus || '', luckyKeyword: q.luckyKeyword || '' };
   });
   const years = (future.years || []).slice(0, 5).map((y, i) => ({
     label: String(YEAR + i), keyword: y.keyword || '', text: y.text || '',
@@ -507,7 +506,7 @@ export async function generateReport(birth, userName = '천문') {
     wealth: fort.wealth, love: fort.love, career: fort.career, health: fort.health,
     // 흐름·미래
     lifeEarly: future.lifeEarly, lifeMid: future.lifeMid, lifeLate: future.lifeLate,
-    months: monthData, years,
+    quarters, years,
     advice: future.advice, closing: future.closing,
     // 하위호환 별칭 (이메일 라이트 등)
     sajuOverview: reading.sajuReading,

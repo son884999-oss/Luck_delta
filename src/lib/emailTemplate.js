@@ -82,13 +82,14 @@ export function renderUserReportEmail(d) {
       ${areaItem('재물운', d.wealth, '#5b7186')}${areaItem('애정과 인연', d.love, '#d6536d')}${areaItem('직업·사회', d.career, '#2f9e6b')}${areaItem('건강운', d.health, '#5a5fd0')}
     </table>` : '';
 
-  const months = (d.months || []).map(m => `
+  const months = (d.quarters || []).map(q => `
     <tr>
-      <td style="padding:9px 0;border-bottom:1px solid ${LINE};width:40px;vertical-align:top;">
-        <span style="font-size:13px;font-weight:700;color:${GOLD};">${esc(m.label)}</span>
+      <td style="padding:9px 0;border-bottom:1px solid ${LINE};width:74px;vertical-align:top;">
+        <span style="font-size:13px;font-weight:700;color:${GOLD};">${esc(q.label)}</span><br/>
+        <span style="font-size:10px;color:${BODY};">${esc(q.range || '')}</span>
       </td>
-      ${m.theme ? `<td style="padding:9px 0;border-bottom:1px solid ${LINE};width:62px;vertical-align:top;"><span style="font-size:10px;font-weight:700;color:${VIOLET};background:${VIOLET}14;border-radius:5px;padding:2px 7px;">${esc(m.theme)}</span></td>` : ''}
-      <td style="padding:9px 0 9px 10px;border-bottom:1px solid ${LINE};font-size:12.5px;line-height:1.65;color:${BODY};">${esc(m.text)}</td>
+      ${q.theme ? `<td style="padding:9px 0;border-bottom:1px solid ${LINE};width:72px;vertical-align:top;"><span style="font-size:10px;font-weight:700;color:${VIOLET};background:${VIOLET}14;border-radius:5px;padding:2px 7px;">${esc(q.theme)}</span></td>` : ''}
+      <td style="padding:9px 0 9px 10px;border-bottom:1px solid ${LINE};font-size:12.5px;line-height:1.65;color:${BODY};">${esc(q.text)}</td>
     </tr>`).join('');
 
   const lifeRow = (label, text) => `
@@ -140,7 +141,7 @@ export function renderUserReportEmail(d) {
       ${section('사주 총평', paras(d.sajuReading || d.sajuOverview))}
       ${section('타고난 성격과 재능', `${chips(d.keywords, VIOLET)}${paras([d.personality, d.talent].filter(Boolean).join('\n\n'))}`, VIOLET)}
       ${areasBlock ? section('재물 · 애정 · 직업 · 건강', areasBlock, GOLD) : ''}
-      ${section(`${esc(d.year)}년 월별 운세`, `<table width="100%" cellpadding="0" cellspacing="0" role="presentation">${months}</table>`)}
+      ${section(`${esc(d.year)}년 분기별 운세`, `<table width="100%" cellpadding="0" cellspacing="0" role="presentation">${months}</table>`)}
       ${section('초년 · 중년 · 말년 인생 흐름', `<table width="100%" cellpadding="0" cellspacing="0" role="presentation">${lifeRow('초년', d.lifeEarly)}${lifeRow('중년', d.lifeMid)}${lifeRow('말년', d.lifeLate)}</table>`, VIOLET)}
       ${section('향후 5년 운세', yearsBlock)}
       ${section(esc(d.nickname) + '님을 위한 조언', paras(d.advice), VIOLET)}

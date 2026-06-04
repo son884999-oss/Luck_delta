@@ -160,11 +160,11 @@ function renderReport(d, theme, cfg) {
      PDF 한 장에 '맞춰서' 그린다(길면 축소·짧으면 가운데). 절대 분할되지 않는다. */
   .page { position: relative; }
   .page.brk { break-before: page; page-break-before: always; }
-  .flow { padding: 0 22mm; }
+  .flow { padding: 0; }
 
-  /* ── 섹션 ── */
+  /* ── 섹션 ── (좌우 여백은 섹션 자체에 — 섹션별 캡처 시 모든 페이지 폭이 동일하도록) */
   .sec { margin-bottom: 0; }
-  .sec.page { padding: 22pt 0 18pt; position: relative; }
+  .sec.page { padding: 22pt 22mm 18pt; position: relative; }
   .page-inner { width: 100%; }
   /* 섹션 상단 — 얇은 별 장식 띠 */
   .sec.page::before {
@@ -348,15 +348,17 @@ function renderReport(d, theme, cfg) {
   .ohaeng-read { margin-top:19pt; }
   .ohaeng-read .body { font-size:11pt; line-height:1.92; }
 
-  /* ── 월별 운세 (12개월 한 페이지에 담기 위해 행 간격을 조밀하게) ── */
-  .months { display:flex; flex-direction:column; gap:6pt; }
-  .mrow { display:flex; flex-direction:column; gap:5pt; padding:9pt 14pt; border-radius:12px; break-inside:avoid; }
-  .m-header { display:flex; align-items:center; gap:9pt; }
-  .m-med { flex:0 0 auto; width:28pt; height:28pt; border-radius:50%; border:1.5px solid ${hexA(PRI, 0.48)}; color:${PRI}; font-size:12pt; font-weight:700; display:flex; align-items:center; justify-content:center; }
-  .m-theme { display:inline-block; font-size:9.5pt; font-weight:700; border-radius:20px; padding:2pt 10pt; }
-  .m-text { font-size:11pt; line-height:1.55; color:${p.body}; }
-  .m-tags { display:flex; gap:8pt; flex-wrap:wrap; margin-top:2pt; }
-  .m-tag { font-size:9.5pt; font-weight:600; padding:2pt 9pt; background:${p.card}; border-radius:6px; color:${p.dim}; }
+  /* ── 분기별 운세 (4개 카드 — 넉넉하고 가독성 좋게) ── */
+  .months { display:flex; flex-direction:column; gap:13pt; }
+  .mrow { display:flex; flex-direction:column; gap:8pt; padding:16pt 20pt; border-radius:16px; break-inside:avoid; }
+  .m-header { display:flex; align-items:center; gap:11pt; }
+  .m-med { flex:0 0 auto; width:34pt; height:34pt; border-radius:50%; border:1.5px solid ${hexA(PRI, 0.48)}; color:${PRI}; font-size:14pt; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .q-title { font-size:14pt; font-weight:700; color:${p.ink}; }
+  .q-range { font-size:10pt; font-weight:400; color:${p.dim}; margin-left:7pt; }
+  .m-theme { display:inline-block; font-size:10.5pt; font-weight:700; border-radius:20px; padding:3pt 12pt; }
+  .m-text { font-size:12.5pt; line-height:1.75; color:${p.body}; }
+  .m-tags { display:flex; gap:8pt; flex-wrap:wrap; margin-top:4pt; }
+  .m-tag { font-size:10.5pt; font-weight:600; padding:2pt 10pt; background:${p.card}; border-radius:6px; color:${p.dim}; }
 
   /* ── 타임라인 ── */
   .tl-row { display:flex; gap:16pt; break-inside:avoid; }
@@ -509,24 +511,21 @@ export function renderReportPdfHtml(d, theme = 'dark') {
           ${d.iljuLine ? `<div class="ov-line serif">“${esc(refine(d.iljuLine))}”</div>` : ''}
         </div>
         ${summaryBox}`;
-      const monthRows = (d.months || []).map((m, idx) => {
-        const num = String(m.label).replace(/[^0-9]/g, '') || m.label;
-        const isEven = idx % 2 === 0;
-        const accentOpacity = isEven ? '0.12' : '0.08';
-        return `<div class="mrow" style="background:${hexA(PRI, parseFloat(accentOpacity))};border-left:3px solid ${hexA(PRI, 0.5)}">
+      // 분기별(4) — 12개월 대신 한 페이지에 가독성 좋게 담긴다
+      const quarterRows = (d.quarters || []).map((q, idx) => `
+        <div class="mrow" style="background:${hexA(PRI, idx % 2 === 0 ? 0.12 : 0.08)};border-left:3px solid ${hexA(PRI, 0.5)}">
           <div class="m-header">
-            <span class="m-med serif">${esc(num)}</span>
-            ${m.theme ? `<span class="m-theme" style="color:${PRI};background:${hexA(PRI, 0.12)};border:1px solid ${hexA(PRI, 0.28)}">${esc(m.theme)}</span>` : ''}
+            <span class="m-med serif">${idx + 1}</span>
+            <span class="q-title serif">${esc(q.label)}<span class="q-range">${esc(q.range || '')}</span></span>
+            ${q.theme ? `<span class="m-theme" style="color:${PRI};background:${hexA(PRI, 0.12)};border:1px solid ${hexA(PRI, 0.28)};margin-left:auto">${esc(q.theme)}</span>` : ''}
           </div>
-          <span class="m-text">${esc(refine(m.text))}</span>
-          ${(m.focus || m.luckyKeyword) ? `<div class="m-tags">
-            ${m.focus ? `<span class="m-tag" style="color:${PRI}">✦ ${esc(m.focus)}</span>` : ''}
-            ${m.luckyKeyword ? `<span class="m-tag" style="color:${SEC}">★ ${esc(m.luckyKeyword)}</span>` : ''}
+          <span class="m-text">${esc(refine(q.text))}</span>
+          ${(q.focus || q.luckyKeyword) ? `<div class="m-tags">
+            ${q.focus ? `<span class="m-tag" style="color:${PRI}">✦ ${esc(q.focus)}</span>` : ''}
+            ${q.luckyKeyword ? `<span class="m-tag" style="color:${SEC}">★ ${esc(q.luckyKeyword)}</span>` : ''}
           </div>` : ''}
-        </div>`;
-      });
-      // 12개월 한 페이지(자동 맞춤이 한 장에 담는다)
-      const months = `<div class="months">${monthRows.join('')}</div>`;
+        </div>`).join('');
+      const quarters = `<div class="months">${quarterRows}</div>`;
       const adviceTips = [['재물', d.wealth], ['애정', d.love], ['직업', d.career], ['건강', d.health]]
         .map(([k, a]) => [k, a && a.tip]).filter(x => x[1]);
       const checklistBox = adviceTips.length ? `
@@ -545,7 +544,7 @@ export function renderReportPdfHtml(d, theme = 'dark') {
         area('V', '애정과 인연', d.love, ELEM['화'].color, '緣'),
         area('VI', '직업과 사회운', d.career, ELEM['목'].color, '職'),
         area('VII', '건강운', d.health, ELEM['수'].color, '健'),
-        textSec('VIII', `${esc(d.year)}년 월별 운세`, months, PRI, '月'),
+        textSec('VIII', `${esc(d.year)}년 분기별 운세`, quarters, PRI, '季'),
         textSec('IX', '초년 · 중년 · 말년 인생 흐름', `<div class="timeline">${phase('초년', '태어나서 30대까지', d.lifeEarly)}${phase('중년', '40~60대', d.lifeMid)}${phase('말년', '60대 이후', d.lifeLate)}</div>`, SEC, '流'),
         textSec('X', '향후 5년 운세', years, PRI, '年'),
         textSec('XI', `${esc(d.nickname)}님을 위한 조언`, `${paras(d.advice, true)}${checklistBox}`, SEC, '言'),
