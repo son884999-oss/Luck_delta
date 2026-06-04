@@ -2867,11 +2867,9 @@ function FoodTable({ nickname, birth, onBack }) {
   // 내 기운(오행 분포) — '오늘의 기운' 진단 비주얼/문구의 근거
   const saju = useMemo(() => { try { return calculateSaju(birth); } catch (e) { return null; } }, [birth]);
   const focusEl = saju?.lacking?.[0] || null;                 // 오늘 채워줄 기운(부족)
-  const domEl = saju?.dominant?.[0]
-    || (saju ? Object.keys(saju.elements || {}).sort((a, b) => saju.elements[b] - saju.elements[a])[0] : null);
   const diagText = !saju ? ''
     : focusEl
-      ? `오늘 그대 안엔 ${OHAENG[domEl]?.plain || ''} 기운이 가득해요. 살짝 비어 있는 ${OHAENG[focusEl]?.plain || ''} 기운을 채워주는 음식이 오늘 작은 위로가 될 거예요.`
+      ? `오늘은 ${OHAENG[focusEl]?.plain || ''} 기운이 살짝 비어 있어요. 그 빈자리를 채워줄 따뜻한 한 그릇을 골라봤어요.`
       : `오행이 두루 고른 편이에요. 오늘은 마음 가는 음식을 편히 즐겨도 좋아요.`;
   // 동반자 톤 — 시간대 인사로 '매일 밤 곁의 식탁' 느낌
   const greet = (() => { const h = new Date().getHours(); return h < 6 ? '고요한 밤이에요' : h < 12 ? '좋은 아침이에요' : h < 18 ? '나른한 오후예요' : '편안한 저녁이에요'; })();
@@ -3067,19 +3065,19 @@ function FoodTable({ nickname, birth, onBack }) {
               border:`1px solid rgba(240,180,41,0.18)`,
               boxShadow:'0 8px 32px rgba(0,0,0,0.4)' }}>
               {!isReco && <div className="mb-2.5"><Eyebrow color={cat.color}>{cat.icon} {cat.label}</Eyebrow></div>}
-              {shown.summary && <p className="serif text-[15px] italic" style={{ color:'rgba(255,245,228,0.85)', lineHeight:1.8 }}>"{shown.summary}"</p>}
-              {(shown.goodFor || shown.cautionFor) && (
+              {shown.summary && <p className="serif text-[14.5px]" style={{ color:'rgba(255,245,228,0.9)', lineHeight:1.7 }}>{shown.summary}</p>}
+              {(shown.nutrition || shown.tip) && (
                 <div className="mt-4 space-y-2">
-                  {shown.goodFor && (
+                  {shown.nutrition && (
                     <div className="flex items-start gap-2.5 rounded-xl px-3.5 py-2.5" style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.22)' }}>
-                      <span className="text-[13px] font-bold flex-shrink-0" style={{ color: EM }}>추천</span>
-                      <p className="text-[13px]" style={{ color: 'var(--ink-dim)', lineHeight: 1.55 }}>{shown.goodFor}</p>
+                      <span className="text-[13px] font-bold flex-shrink-0" style={{ color: EM }}>영양 포인트</span>
+                      <p className="text-[13px]" style={{ color: 'var(--ink-dim)', lineHeight: 1.55 }}>{shown.nutrition}</p>
                     </div>
                   )}
-                  {shown.cautionFor && (
-                    <div className="flex items-start gap-2.5 rounded-xl px-3.5 py-2.5" style={{ background: 'rgba(251,113,133,0.07)', border: '1px solid rgba(251,113,133,0.2)' }}>
-                      <span className="text-[13px] font-bold flex-shrink-0" style={{ color: '#fb7185' }}>주의</span>
-                      <p className="text-[13px]" style={{ color: 'var(--ink-dim)', lineHeight: 1.55 }}>{shown.cautionFor}</p>
+                  {shown.tip && (
+                    <div className="flex items-start gap-2.5 rounded-xl px-3.5 py-2.5" style={{ background: 'rgba(240,180,41,0.08)', border: '1px solid rgba(240,180,41,0.22)' }}>
+                      <span className="text-[13px] font-bold flex-shrink-0" style={{ color: '#f0b429' }}>이렇게 드세요</span>
+                      <p className="text-[13px]" style={{ color: 'var(--ink-dim)', lineHeight: 1.55 }}>{shown.tip}</p>
                     </div>
                   )}
                 </div>
@@ -3182,8 +3180,6 @@ function FoodTable({ nickname, birth, onBack }) {
           </div>
         </section>
       )}
-
-      <p className="text-[11px] text-center pt-1" style={{ color: 'var(--ink-faint)' }}>한방 성질·오행 적합도 기준 추천 · 의학적 진단이 아니에요</p>
     </div>
   );
 }
