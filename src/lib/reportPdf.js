@@ -147,11 +147,10 @@ function renderReport(d, theme, cfg) {
     .page.brk { break-before: page; page-break-before: always; }
   }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  html, body { background:${theme === 'dark'
-    ? `radial-gradient(ellipse at 18% 0%, ${hexA(SEC, 0.16)} 0%, transparent 38%),
-       radial-gradient(ellipse at 82% 100%, ${hexA(PRI, 0.13)} 0%, transparent 40%),
-       linear-gradient(180deg, #090d22 0%, ${p.pageBg} 48%, #05080f 100%)`
-    : p.pageBg}; background-attachment: fixed; }
+  /* PDF 본문 배경은 단색 — html2canvas가 화면 그라데이션을 캡처하면 섹션마다 색이 달라
+     보이고(가운데 밝고 바깥 어두움) clientPdf 여백 단색과 어긋난다. 단색 pageBg 로 통일해
+     이질감 제거. 표지·맺음말은 각자 .cover/.ending 에서 고유 배경을 유지한다. */
+  html, body { background:${p.pageBg}; }
   body { font-family:'Noto Sans KR',sans-serif; color:${p.ink}; word-break:keep-all; overflow-wrap:break-word; line-height:1.65; font-size:13pt; orphans:4; widows:4; }
   .serif { font-family:'Noto Serif KR',serif; }
   b { font-weight:700; }
@@ -202,6 +201,8 @@ function renderReport(d, theme, cfg) {
 
   .chips { display:flex; flex-wrap:wrap; gap:8pt; margin:2pt 0 22pt; break-inside:avoid; }
   .chip { font-size:11.5pt; font-weight:600; padding:6pt 17pt; border-radius:999px; border:1px solid; }
+  /* 한눈에 보기 요약 카드 안의 칩 — 행에 맞춰 여백 제거 */
+  .summary-row .chips { margin:0; }
 
   /* ── 인용구 — 폭이 넓고 시각적으로 강하게 ── */
   .pquote {
@@ -486,10 +487,11 @@ export function renderReportPdfHtml(d, theme = 'dark') {
     closing: d.closing,
     foot: '天文 AI · 한국형 정밀 운세 리포트',
     makeBody: (b) => {
-      const { paras, textSec, area, phase, cards, ELEM, PRI, SEC, d, domKey, lackKey, domPlain, lackPlain } = b;
+      const { paras, chips, textSec, area, phase, cards, ELEM, PRI, SEC, d, domKey, lackKey, domPlain, lackPlain } = b;
       // 한눈에 보기 — 명식 다음 단독 페이지. 일주 히어로 + 한 줄 요약 + 핵심 요약 카드로 페이지를 채운다.
+      // (타원형 칩은 한눈에 보기에만 — 본문 섹션에는 쓰지 않는다)
       const keyLine = (d.keywords && d.keywords.length)
-        ? `<div class="summary-row"><div class="summary-label">핵심 키워드</div><div class="summary-val">${d.keywords.map(k => esc(k)).join(' · ')}</div></div>` : '';
+        ? `<div class="summary-row"><div class="summary-label">핵심 키워드</div><div class="summary-val">${chips(d.keywords, SEC)}</div></div>` : '';
       const summaryBox = `
         <div class="summary">
           <div class="summary-k">핵심 요약</div>
@@ -647,11 +649,12 @@ export function renderStudyReportPdfHtml(d, theme = 'dark') {
     closing: d.closingQuote || d.closing,
     foot: '天文 AI · 학습 상세 리포트',
     makeBody: (b) => {
-      const { paras, textSec, phase, cards, PRI, SEC, d } = b;
+      const { paras, chips, textSec, phase, cards, PRI, SEC, d } = b;
       const bt = d.bestTime || {};
       // 한눈에 보기 — 명식 다음 단독 페이지. 두뇌 유형 히어로 + 핵심 요약 카드로 페이지를 채운다.
+      // (타원형 칩은 한눈에 보기에만)
       const ovKeyLine = (d.brainKeywords && d.brainKeywords.length)
-        ? `<div class="summary-row"><div class="summary-label">핵심 강점</div><div class="summary-val">${d.brainKeywords.map(k => esc(k)).join(' · ')}</div></div>` : '';
+        ? `<div class="summary-row"><div class="summary-label">핵심 강점</div><div class="summary-val">${chips(d.brainKeywords, SEC)}</div></div>` : '';
       const overviewInner = `
         <div class="ov">
           <div class="ov-heroes">
