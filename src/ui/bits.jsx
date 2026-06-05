@@ -5,20 +5,17 @@
 import { ChevronDown } from 'lucide-react';
 import { playTap } from '../lib/audio.js';
 
-/* 뒤로가기 바 — 스크롤해도 항상 상단에 붙어 있어 어디서든 돌아갈 수 있다 */
+/* 뒤로가기 바 (상단) */
 export function BackBar({ onBack, label }) {
   return (
-    <div className="sticky top-0 z-50 -mt-2 pt-2 pb-2"
-      style={{ background: 'linear-gradient(to bottom, var(--bg) 72%, transparent)', backdropFilter: 'blur(4px)' }}>
-      <button onClick={() => { playTap(); onBack(); }}
-        className="flex items-center gap-2 text-[14px] font-semibold transition-all active:scale-95 rounded-xl"
-        style={{ minHeight: 44, padding: '0 4px', color: 'var(--ink-dim)' }}>
-        <span className="flex items-center justify-center rounded-lg" style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
-          <ChevronDown size={16} className="rotate-90"/>
-        </span>
-        <span>{label}</span>
-      </button>
-    </div>
+    <button onClick={() => { playTap(); onBack(); }}
+      className="flex items-center gap-2 text-[14px] font-semibold transition-all active:scale-95 rounded-xl"
+      style={{ minHeight: 44, padding: '0 4px', color: 'var(--ink-dim)' }}>
+      <span className="flex items-center justify-center rounded-lg" style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
+        <ChevronDown size={16} className="rotate-90"/>
+      </span>
+      <span>{label}</span>
+    </button>
   );
 }
 

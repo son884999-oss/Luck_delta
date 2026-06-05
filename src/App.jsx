@@ -632,6 +632,17 @@ export default function App() {
             onBack={() => { setStep('reportSelect'); vibrate(10); }}
           />
         )}
+
+        {/* 화면 최하단 — 어느 기능 화면에서든 메인으로 한 번에 (상단 뒤로가기 보조) */}
+        {['categoryKnow','categoryRelate','categoryRecord','astrology','ziwei','numerology','studyCompass','food','reportSelect','diary','diaryHub','form','tarotDraw','report'].includes(step) && (
+          <div className="pb-12">
+            <button onClick={() => { playTap(); setStep('hub'); vibrate(12); }}
+              className="w-full flex items-center justify-center gap-2 rounded-2xl font-bold text-[14px] active:scale-[0.98] transition-transform"
+              style={{ minHeight: 50, color: 'var(--ink-dim)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)' }}>
+              <Home size={16}/> 메인으로
+            </button>
+          </div>
+        )}
       </main>
 
       <ConfirmDialog open={confirmReset} danger
