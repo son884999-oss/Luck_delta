@@ -3184,7 +3184,7 @@ function FoodTable({ nickname, birth, onBack }) {
           <div className="flex gap-2 w-full">
             <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && doSearch()}
               placeholder="식품명 검색 (예: 콩나물, 두부, 홍삼)" aria-label="식품 검색"
-              className="flex-1 text-[15px] outline-none"
+              className="flex-1 min-w-0 text-[15px] outline-none"
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(52,211,153,0.40)', borderRadius: 14, padding: '13px 16px', minHeight: 50, color: 'var(--ink)' }}/>
             <button onClick={doSearch} disabled={!q.trim() || analyzing} aria-label="분석"
               className="flex items-center justify-center rounded-2xl active:scale-95 transition-transform flex-shrink-0"
