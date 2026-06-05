@@ -20,17 +20,17 @@ export async function searchRestaurantsByDishes(dishes, { lat, lng, radius = 500
   return j.places || [];
 }
 
-/* 메뉴 대표 이미지 1장(서버 프록시 /api/food-image 경유). 메뉴명별 localStorage 캐시.
-   못 찾거나 실패하면 null → 호출부가 이모지로 폴백한다. */
+/* 메뉴 대표 이미지 후보들(서버 프록시 /api/food-image 경유). 메뉴명별 localStorage 캐시.
+   반환: [{ image, thumb, w, h }] — 호출부가 앞에서부터 로드 시도(고화질 우선), 다 실패하면 이모지 폴백. */
 export async function fetchFoodImage(name) {
-  const key = `cm_food_img2_${name}`;  // v2: 옛 캐시(핫링크 403 원본 URL) 무시
-  try { const c = localStorage.getItem(key); if (c !== null) return c || null; } catch (e) {}
+  const key = `cm_food_img3_${name}`;  // v3: 후보 리스트 + 품질 필터
+  try { const c = localStorage.getItem(key); if (c !== null) return JSON.parse(c); } catch (e) {}
   try {
     const resp = await fetch(`/api/food-image?q=${encodeURIComponent(name)}`);
-    if (!resp.ok) return null;
+    if (!resp.ok) return [];
     const j = await resp.json();
-    const url = j.image || j.thumb || null;
-    try { localStorage.setItem(key, url || ''); } catch (e) {}
-    return url;
-  } catch (e) { return null; }
+    const arr = j.candidates || [];
+    try { localStorage.setItem(key, JSON.stringify(arr)); } catch (e) {}
+    return arr;
+  } catch (e) { return []; }
 }

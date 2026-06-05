@@ -2957,19 +2957,28 @@ function FoodTable({ nickname, birth, onBack }) {
   const cat = shown ? (FOOD_CAT[shown.category] || FOOD_CAT.C_GENERAL) : null;
   const danger = shown?.category === 'D_PSEUDO';
 
-  // 메뉴 사진 — 메뉴명이 정해지면 카카오 이미지 검색 → 프리로드 성공 시에만 표시(깨진 이미지 방지).
+  // 메뉴 사진 — 후보를 앞에서부터 로드 시도(고화질 원본 우선 → 썸네일 → 다음 후보). 다 실패하면 이모지.
   useEffect(() => {
     const name = shown?.foodName;
     setFoodImg(null);
     if (!name) return;
     let alive = true;
-    fetchFoodImage(name).then(url => {
-      if (!alive || !url) return;
+    const preload = (url) => new Promise((resolve) => {
+      if (!url) return resolve(false);
       const im = new Image();
-      im.referrerPolicy = 'no-referrer';   // 일부 호스트의 referer 기반 핫링크 차단 회피
-      im.onload = () => { if (alive) setFoodImg(url); };
+      im.referrerPolicy = 'no-referrer';   // referer 기반 핫링크 차단 회피
+      im.onload = () => resolve(im.naturalWidth >= 200);  // 너무 작은/깨진 건 거름
+      im.onerror = () => resolve(false);
       im.src = url;
     });
+    (async () => {
+      const cands = await fetchFoodImage(name);
+      for (const c of (cands || [])) {
+        if (!alive) return;
+        if (await preload(c.image)) { if (alive) setFoodImg(c.image); return; }
+        if (await preload(c.thumb)) { if (alive) setFoodImg(c.thumb); return; }
+      }
+    })();
     return () => { alive = false; };
   }, [shown?.foodName]);
 
@@ -3014,8 +3023,7 @@ function FoodTable({ nickname, birth, onBack }) {
         : 'transparent' }}/>
       {/* 콘텐츠 — 사진이면 하단 정렬, 없으면 중앙(이모지 포함) */}
       <div className={`relative z-10 flex flex-col items-center text-center px-6 w-full ${foodImg ? 'mt-auto pb-6' : 'my-auto'}`}>
-        {!foodImg && <span className="text-[52px] mb-1" style={{ filter:'drop-shadow(0 4px 12px rgba(240,180,41,0.3))' }}>{foodEmoji}</span>}
-        <span className="text-[11px] font-bold tracking-[0.25em] mb-1.5" style={{ color:'rgba(240,180,41,0.8)' }}>오행 식탁</span>
+        {!foodImg && <span className="text-[52px] mb-2" style={{ filter:'drop-shadow(0 4px 12px rgba(240,180,41,0.3))' }}>{foodEmoji}</span>}
         <p className="serif text-[26px] font-black leading-tight break-keep" style={{ color:'#fff5e4', textShadow: foodImg ? '0 2px 14px rgba(0,0,0,0.85)' : 'none' }}>{shown.foodName}</p>
         {/* 성질 태그 */}
         {shown.nature && (

@@ -27,17 +27,24 @@ export default async function handler(req, res) {
     }
     const j = await r.json();
     const docs = j.documents || [];
-    // 썸네일(thumbnail_url)은 카카오 CDN https라 핫링크가 안정적 → 이걸 우선 사용.
-    // 원본 image_url은 외부 서버라 403(핫링크 차단)이 잦아 보조로만 둔다.
-    const pick = docs.find(d => /^https:/.test(d.thumbnail_url || '') && (d.width || 0) >= (d.height || 0) * 0.8)
-      || docs.find(d => /^https:/.test(d.thumbnail_url || ''))
-      || docs[0];
-    if (!pick) return res.status(200).json({ image: null, thumb: null });
-    return res.status(200).json({
-      image: pick.thumbnail_url || (/^https:/.test(pick.image_url || '') ? pick.image_url : null),
-      thumb: pick.thumbnail_url || null,
-      count: docs.length,   // 디버깅: 검색 결과 개수
-    });
+
+    // 후보 정규화 — https 썸네일 필수. image(고화질 원본)는 있으면 같이.
+    const norm = docs
+      .filter(d => /^https:/.test(d.thumbnail_url || ''))
+      .map(d => ({
+        image: /^https:/.test(d.image_url || '') ? d.image_url : null,
+        thumb: d.thumbnail_url,
+        w: d.width || 0, h: d.height || 0,
+      }));
+    const ar = d => (d.h > 0 ? d.w / d.h : 1);
+    // 품질 필터 — 해상도 충분 + 정사각/가로에 가까운 비율(세로 메뉴판·영수증·배너 제거)
+    const strict = norm.filter(d => d.w >= 500 && ar(d) >= 0.75 && ar(d) <= 1.8);
+    const relaxed = norm.filter(d => d.w >= 300 && ar(d) >= 0.6 && ar(d) <= 2.2);
+    const ranked = (strict.length ? strict : relaxed)
+      .sort((a, b) => Math.abs(1 - ar(a)) - Math.abs(1 - ar(b))) // 정사각에 가까운 순(카드에 잘 맞음)
+      .slice(0, 6);
+
+    return res.status(200).json({ candidates: ranked, count: docs.length });
   } catch (e) {
     return res.status(502).json({ error: e.message });
   }

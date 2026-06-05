@@ -129,13 +129,14 @@ export async function recommendTodayFoodAI(saju) {
 - 메뉴는 실제 식당에서 파는 평범하고 구체적인 것(예: 갈치조림, 콩나물국밥, 된장찌개 백반). 특이하거나 비싼 건 피하세요.
 - 한자·전문용어 없이 순한글, 따뜻한 톤.
 - summary는 기운 이야기 말고 메뉴 자체를 침 고이게 소개하는 1~2문장.
+- nature는 맛·식감을 나타내는 짧은 표현(8자 내외, 예: '담백하고 정갈한', '얼큰하고 든든한'). '~성질로 몸에 활력' 같은 문장·효능 주장 금지.
 - nutrition은 실제 영양 사실에 기반해 1문장(과장·허위 금지). tip은 상식적인 섭취 팁 1문장. 의학적 진단은 금지.`,
     user: `부족한 기운: ${focusPlain}. 오늘 채워주면 좋은 한 그릇을 추천해 주세요.`,
     schema: {
       type: 'OBJECT',
       properties: {
         foodName: { type: 'STRING' },                              // 메뉴 이름
-        nature: { type: 'STRING' },                                // 맛/식감 서술 (예: 담백하고 정갈한)
+        nature: { type: 'STRING' },                                // 맛·식감 짧은 표현 8자 내외(예: 담백하고 정갈한). 효능·건강 주장 금지.
         summary: { type: 'STRING' },                               // 메뉴 소개 1~2문장
         nutrition: { type: 'STRING' },                             // 사실 기반 영양 정보 1문장
         tip: { type: 'STRING' },                                   // 섭취 팁 1문장
@@ -148,10 +149,13 @@ export async function recommendTodayFoodAI(saju) {
     },
   }, 2);
 
+  // 성질 태그 방어 — 모델이 문장·효능 주장을 넣으면 '성질' 앞까지/짧게 잘라 짧은 표현만 남긴다.
+  const natureClean = String(result.nature || '').replace(/\s*성질.*$/, '').replace(/[.。]\s*$/, '').trim().slice(0, 20);
+
   return {
     foodName: result.foodName,
     ohaengTags: (result.ohaengTags && result.ohaengTags.length) ? result.ohaengTags : [focusEl],
-    nature: result.nature,
+    nature: natureClean,
     suitabilityScore: Math.min(98, Math.max(60, Math.round(result.suitabilityScore || 88))),
     summary: result.summary,
     nutrition: result.nutrition,
