@@ -392,7 +392,7 @@ export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emo
 });
 
 /* ── 휠 피커 (RAF + 데드존 물리) ───────────────────────────── */
-const ITEM_H = 52, VISIBLE = 3, PAD = 1, DEAD = 6; // 행 높이 유지(터치 타깃), 보이는 항목 5→3으로 컴팩트화
+const ITEM_H = 44, VISIBLE = 3, PAD = 1, DEAD = 6; // 컴팩트: 행 높이 52→44, 보이는 항목 3
 export const WheelPicker = memo(({ items, value, onChange, label, renderItem }) => {
   const ref = useRef(null);
   const committed = useRef(value);
@@ -546,6 +546,8 @@ export const BirthInput = memo(({ birthData, setBirthData, label }) => {
   const monthItems = Array.from({ length:12 }, (_, i) => ({ value:String(i + 1), label:String(i + 1).padStart(2, '0') }));
   const dayItems = Array.from({ length:31 }, (_, i) => ({ value:String(i + 1), label:String(i + 1).padStart(2, '0') }));
   const set = (patch) => setBirthData({ ...birthData, ...patch });
+  // 태어난 시는 선택 정보 → 기본 접어두고(시간 모름), 필요할 때만 펼친다. 화면이 짧아진다.
+  const [showHour, setShowHour] = useState(() => birthData.h !== undefined && birthData.h !== '' && birthData.h !== '모름');
 
   return (
     <div className="space-y-6">
@@ -566,8 +568,17 @@ export const BirthInput = memo(({ birthData, setBirthData, label }) => {
         <WheelPicker items={monthItems} value={birthData.m} label="월" onChange={v => set({ m:v })}/>
         <WheelPicker items={dayItems} value={birthData.d} label="일" onChange={v => set({ d:v })}/>
       </div>
-      <WheelPicker items={SIJIN_ITEMS} value={hourToSijin(birthData.h)} label="태어난 시"
-        onChange={v => v === '모름' ? set({ h:'모름', min:'모름' }) : set({ h:v, min:'0' })}/>
+      {showHour ? (
+        <WheelPicker items={SIJIN_ITEMS} value={hourToSijin(birthData.h)} label="태어난 시"
+          onChange={v => v === '모름' ? set({ h:'모름', min:'모름' }) : set({ h:v, min:'0' })}/>
+      ) : (
+        <button type="button"
+          onClick={() => { setShowHour(true); vibrate(6); }}
+          className="w-full rounded-2xl text-[14px] font-semibold transition-colors active:scale-[0.99]"
+          style={{ minHeight:48, color:'rgba(185,174,240,0.92)', background:'rgba(129,140,248,0.08)', border:'1px dashed rgba(129,140,248,0.32)' }}>
+          + 태어난 시간도 입력 (선택)
+        </button>
+      )}
     </div>
   );
 });
