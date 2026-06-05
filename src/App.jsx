@@ -3037,7 +3037,7 @@ function FoodTable({ nickname, birth, onBack }) {
       {/* 오늘의 한 그릇 — 단일 추천 카드(즉시·네트워크 0) + 공개 의식 */}
       {shown && (
         <section className="space-y-3">
-          <div className="flex items-center justify-between ml-1">
+          <div className="flex items-center justify-between mx-auto w-full px-1" style={{ maxWidth: CARD_W }}>
             <Eyebrow color={EM}>{isReco ? '오늘의 추천 메뉴' : '검색 결과'}</Eyebrow>
             {isReco && <span className="text-[11px]" style={{ color: 'var(--ink-faint)' }}>매일 바뀌어요</span>}
           </div>
@@ -3179,9 +3179,9 @@ function FoodTable({ nickname, birth, onBack }) {
 
       {/* 다른 음식 검색 — 현재 숨김. 코드 보존(추후 SHOW_SEARCH=true 로 되살림) */}
       {SHOW_SEARCH && (
-        <section className="space-y-2.5 pt-1">
+        <section className="space-y-2.5 pt-1 mx-auto w-full" style={{ maxWidth: CARD_W }}>
           <Eyebrow color="rgba(52,211,153,0.85)" className="ml-1">식품 검색</Eyebrow>
-          <div className="flex gap-2 mx-auto w-full" style={{ maxWidth: CARD_W }}>
+          <div className="flex gap-2 w-full">
             <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && doSearch()}
               placeholder="식품명 검색 (예: 콩나물, 두부, 홍삼)" aria-label="식품 검색"
               className="flex-1 text-[15px] outline-none"
