@@ -2884,7 +2884,7 @@ function FoodTable({ nickname, birth, onBack }) {
     const query = q.trim();
     if (!query) return;
     if (!hasApiKey()) { setAnErr('AI 연결이 필요해요. 잠시 후 다시 시도해 주세요.'); return; }
-    setAnalyzing(true); setAnErr(''); setResult(null); setRevealed(false); playClick(); vibrate(10);
+    setAnalyzing(true); setAnErr(''); setResult(null); setRevealed(false); setPlaces(null); setPlacesErr(''); playClick(); vibrate(10);
     try {
       // 백엔드 DB → 없거나 느리면 Gemini 직접 분석으로 폴백 (4초 타임아웃)
       let res;
@@ -2948,6 +2948,7 @@ function FoodTable({ nickname, birth, onBack }) {
   useEffect(() => {
     const url = shown?.img;
     setFoodImg(null);
+    setPlaces(null); setPlacesErr('');   // 메뉴가 바뀌면 이전 주변 식당 결과는 비운다
     if (!url) return;
     let alive = true;
     const im = new Image();
@@ -3139,7 +3140,7 @@ function FoodTable({ nickname, birth, onBack }) {
               {placesErr && <p className="text-[12px] text-center mt-3" style={{ color: 'rgba(251,113,133,0.85)' }}>{placesErr}</p>}
               {places && places.length > 0 && (
                 <div className="mt-3.5 pt-3.5 space-y-2" style={{ borderTop: '1px solid rgba(255,255,255,0.10)' }}>
-                  <p className="text-[11px] font-bold" style={{ color: 'var(--ink-faint)' }}>오늘의 메뉴를 파는 주변 식당</p>
+                  <p className="text-[11px] font-bold" style={{ color: 'var(--ink-faint)' }}>{shown.foodName}을(를) 파는 주변 식당</p>
                   {hasKakaoJsKey() && <RestaurantMap places={places} accent={cat.color}/>}
                   {places.map((p, i) => (
                     /* 카드 전체가 카카오 장소 페이지 링크 — 거기서 길찾기·전화·리뷰를 네이티브로 */
@@ -3183,7 +3184,7 @@ function FoodTable({ nickname, birth, onBack }) {
           <Eyebrow color="rgba(52,211,153,0.85)" className="ml-1">식품 검색</Eyebrow>
           <div className="flex gap-2 w-full">
             <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && doSearch()}
-              placeholder="식품명 검색 (예: 콩나물, 두부, 홍삼)" aria-label="식품 검색"
+              placeholder="식품명 검색 (예: 홍삼)" aria-label="식품 검색"
               className="flex-1 min-w-0 text-[15px] outline-none"
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(52,211,153,0.40)', borderRadius: 14, padding: '13px 16px', minHeight: 50, color: 'var(--ink)' }}/>
             <button onClick={doSearch} disabled={!q.trim() || analyzing} aria-label="분석"

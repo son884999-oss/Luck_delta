@@ -66,6 +66,12 @@ export const drawTarot = () => {
 
 /* ── 톤 & 페르소나 ──────────────────────────────────────────── */
 const WARM = `\n톤 규칙: 친근하고 따뜻한 이웃 언니/형처럼. 부정적 내용도 반드시 재프레이밍('이런 날은 쉬어가는 게 보약이에요'). '~하지 마세요','~을 피하세요' 같은 금지/경고 표현 금지. 대신 '~하면 더 좋아요'. 한자 사용 금지, 순한글. 문장 앞 기호(•-*●) 금지.`;
+
+// 프리미엄 리포트 전용 품질 규칙 — 진부한 비유 금지 + 명식 근거 + 솔직함(바넘 탈피)
+const REPORT_VOICE = `\n[리포트 품질 규칙]
+- 진부한 비유 금지: '등대', '햇살 같은', '씨앗을 뿌리면 꽃을 피우고 열매를 맺는다', '매화처럼', '거친 파도를 건너 평온한 바다' 같은 상투적 문구를 쓰지 말고 구체적인 상황·행동·장면으로 표현하세요. 리포트마다 비유가 똑같이 반복되면 안 됩니다.
+- 명식 근거: 각 항목에서 최소 한 번은 해석의 근거가 된 기둥(년·월·일·시주)이나 천간·지지·오행을 일상어로 짧게 언급해, 실제 명식을 읽고 쓴 느낌을 주세요(전문용어 나열은 금지).
+- 솔직함: 모든 것을 '사실은 장점'으로 포장하지 말고, 항목마다 약간 불편하더라도 도움이 되는 솔직한 관찰을 따뜻한 어조로 한 가지 담으세요. 누구에게나 들어맞는 막연한 칭찬은 피하고, 이 사람만의 구체적인 이야기를 쓰세요.`;
 const persona = (name, ilju, ohaeng) =>
   `당신은 ${name}님의 편에서 응원하는 따뜻한 명리학자 '천문'입니다. 일주 ${ilju}(본명오행 ${ohaeng}) 기반.`;
 
@@ -396,8 +402,9 @@ export function buildReportPrompt(part, birth, userName, saju) {
   const domPlain  = saju.dominant.map(k => ELEM_PLAIN[k]).join('·');
   const lackPlain = saju.lacking.map(k => ELEM_PLAIN[k]).join('·');
   const ground = `\n[분석 근거 — 반드시 아래 ${userName}님의 명식에 기반해, 일반론이 아닌 이 사람만의 구체적 해석을 쓰세요]\n${sajuSummaryLine(saju)}\n강한 기운: ${domPlain || '비교적 고른 편'}${lackPlain ? ` · 부족한 기운: ${lackPlain}` : ''}.`;
-  const PLAIN = `\n표현 규칙: 오행은 '나무·불·흙·쇠·물' 같은 일상어로만 풀어 쓰고, 한자나 전문용어(비겁·식상·재성·관성 등)는 본문에 절대 쓰지 마세요. 각 본문 항목은 빈 줄(줄바꿈 두 번)로 구분된 여러 문단으로, 구체적인 장면과 예시를 담아 충분히 깊고 길게 쓰세요. 어떤 항목도 리포트 한 페이지(A4)의 2/3 미만으로 짧게 끝나지 않도록, 빈 공간이 남지 않을 만큼 풍부하게 채우세요. ${userName}님의 이름을 본문에 자연스럽게 넣어 개인화된 느낌을 주세요.`;
-  const ctx = `${WARM}${PLAIN}${ground}`;
+  const PLAIN = `\n표현 규칙: 오행은 '나무·불·흙·쇠·물' 같은 일상어로만 풀어 쓰고, 한자나 전문용어(비겁·식상·재성·관성 등)는 본문에 절대 쓰지 마세요. 문단은 빈 줄(줄바꿈 두 번)로 구분하고, 문장 수를 채우려 같은 말을 늘리지 말고 밀도 있게 쓰세요. ${userName}님의 이름을 본문에 자연스럽게 넣어 개인화된 느낌을 주세요.`;
+  const TONE = `\n이 리포트의 목소리: 한 사람의 인생 서사를 담담히 들려주는 톤.`;
+  const ctx = `${WARM}${PLAIN}${REPORT_VOICE}${TONE}${ground}`;
 
   if (part === 'reading') {
     return {
@@ -532,8 +539,8 @@ export async function generateGunghapReport(birth, birth2, userName = '천문', 
   const oh2 = OHAENG[saju2.dayElem] || OHAENG['토'];
   const base = persona(userName, ilju1, saju1.dayElem);
   const birthText1 = fmtBirth(birth), birthText2 = fmtBirth(birth2);
-  const ctx = `${WARM}\n표현 규칙: 오행은 '나무·불·흙·쇠·물' 일상어로만, 한자·전문용어 금지. 두 사람 이름(${userName}님, ${partnerName}님)을 구체적으로 언급해 개인화된 느낌을 줘.`;
-  const pairCtx = `[두 사람 명식]\n${userName}님: ${birthText1} · 일주 ${ilju1} · ${oh1.plain} 기운\n${partnerName}님: ${birthText2} · 일주 ${ilju2} · ${oh2.plain} 기운`;
+  const ctx = `${WARM}\n표현 규칙: 오행은 '나무·불·흙·쇠·물' 일상어로만, 한자·전문용어 금지. 두 사람 이름(${userName}님, ${partnerName}님)을 구체적으로 언급해 개인화된 느낌을 줘.${REPORT_VOICE}\n이 리포트의 목소리: 두 사람의 상호작용과 관계 역학에 집중하는 톤.`;
+  const pairCtx = `[두 사람 명식]\n${userName}님: ${birthText1} · 일주 ${ilju1} · ${oh1.plain} 기운(강한 기운 ${(saju1.dominant||[]).map(k=>ELEM_PLAIN[k]).join('·')||'고른 편'})\n${partnerName}님: ${birthText2} · 일주 ${ilju2} · ${oh2.plain} 기운(강한 기운 ${(saju2.dominant||[]).map(k=>ELEM_PLAIN[k]).join('·')||'고른 편'})`;
 
   const [p1, p2] = await Promise.all([
     // 파트 1 — 관계 본질·애정·소통·갈등
@@ -586,6 +593,7 @@ export async function generateGunghapReport(birth, birth2, userName = '천문', 
     reportType: 'gunghap',
     nickname: userName, partnerName,
     birthText: birthText1, birthText2,
+    tti: saju1.tti,
     ilju: ilju1, ilju2,
     ohaengPlain: oh1.plain, ohaengMeaning: oh1.meaning,
     ohaengPlain2: oh2.plain, ohaengMeaning2: oh2.meaning,
@@ -607,7 +615,8 @@ export async function generateStudyReport(birth, userName = '천문') {
   const lackPlain = saju.lacking.map(k => ELEM_PLAIN[k]).join('·');
   const ground = `\n[분석 근거 — ${userName}님 명식에 기반한 구체적 해석]\n${sajuSummaryLine(saju)}\n강한 기운: ${domPlain || '고른 편'}${lackPlain ? ` · 부족한 기운: ${lackPlain}` : ''}.`;
   const PLAIN = `\n표현 규칙: 오행은 '나무·불·흙·쇠·물' 같은 일상어로만, 한자·전문용어 금지. 따뜻하고 구체적으로.`;
-  const ctx = `${WARM}${PLAIN}${ground}`;
+  const TONE = `\n이 리포트의 목소리: 배움과 성장을 돕는 학습 코치 톤.`;
+  const ctx = `${WARM}${PLAIN}${REPORT_VOICE}${TONE}${ground}`;
 
   const [p1, p2] = await Promise.all([
     callGeminiRetry({

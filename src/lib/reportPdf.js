@@ -446,7 +446,7 @@ function renderReport(d, theme, cfg) {
     <div class="page-inner">
       <div class="myungsik-hero">
         <div class="mh-name serif">${esc(d.nickname)}님의 사주 명식</div>
-        <div class="mh-meta"><span>${esc(d.birthText)}</span><span class="mh-dot">|</span><span>${esc(d.tti || '')}띠</span><span class="mh-dot">|</span><span>일주 <b>${esc(d.ilju)}</b></span></div>
+        <div class="mh-meta"><span>${esc(d.birthText)}</span>${d.tti ? `<span class="mh-dot">|</span><span>${esc(d.tti)}띠</span>` : ''}<span class="mh-dot">|</span><span>일주 <b>${esc(d.ilju)}</b></span></div>
       </div>
       <div class="pillars">${pillarCards}</div>
       <div class="pillar-cap">네 기둥은 태어난 해·달·날·시의 하늘 기운(천간)과 땅 기운(지지)을 담습니다.<br>가운데 강조된 <b>일주</b>가 ${esc(d.nickname)}님의 중심이에요.</div>
