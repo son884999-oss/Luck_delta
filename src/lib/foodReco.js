@@ -22,22 +22,22 @@ const FOODS = [
   // 수(물) — 지혜·차분·신장
   { name: '순두부찌개', el: ['수', '토'], nature: '얼큰하고 부드러운', desc: '보글보글 끓는 순두부가 부드럽게 속을 데워줘요.', nutrition: '두부의 식물성 단백질과 이소플라본, 칼슘을 함께 섭취할 수 있어요.', tip: '국물은 간이 셀 수 있으니 밥과 함께 슴슴하게 드세요.', score: 86, benefits: ['식물성 단백질', '부드러운 소화', '든든한 포만감'] },
   { name: '해물탕', el: ['수'], nature: '시원하고 담백한', desc: '시원한 국물에 해산물이 가득해 속이 든든해져요.', nutrition: '조개·새우 등 해산물로 저지방 단백질과 아연·타우린을 보충해요.', tip: '통풍이 있다면 해산물·국물 섭취는 적당히 조절하세요.', score: 84, benefits: ['저지방 단백질', '담백한 국물', '미네랄 보충'] },
-  { name: '미역국 백반', el: ['수', '목'], nature: '담백하고 부드러운', desc: '담백한 미역국이 속을 편안하게 감싸줘요.', nutrition: '미역의 식이섬유와 요오드, 칼슘·마그네슘을 함께 섭취할 수 있어요.', tip: '갑상선 질환이 있다면 미역(요오드) 섭취량은 의료진과 상의하세요.', score: 83, benefits: ['식이섬유', '미네랄 풍부', '부담 없는 소화'] },
+  { name: '미역국 백반', el: ['수', '목'], nature: '담백하고 부드러운', desc: '담백한 미역국이 속을 편안하게 감싸줘요.', nutrition: '미역의 식이섬유와 요오드, 칼슘·마그네슘을 함께 섭취할 수 있어요.', tip: '갑상선 질환이 있다면 미역(요오드) 섭취량은 의료진과 상의하세요.', img: 'https://upload.wikimedia.org/wikipedia/commons/3/36/Miyeok-guk.jpg', score: 83, benefits: ['식이섬유', '미네랄 풍부', '부담 없는 소화'] },
   // 목(나무) — 성장·간·유연
-  { name: '비빔밥', el: ['목', '토'], nature: '산뜻하고 든든한', desc: '갖은 나물을 고루 비벼 한 그릇에 담아낸 든든한 메뉴예요.', nutrition: '여러 나물·채소로 식이섬유와 비타민을, 밥으로 탄수화물을 고루 섭취해요.', tip: '고추장 양을 줄이면 나트륨 섭취를 낮출 수 있어요.', score: 85, benefits: ['다양한 채소', '균형 잡힌 한 끼', '식이섬유'] },
+  { name: '비빔밥', el: ['목', '토'], nature: '산뜻하고 든든한', desc: '갖은 나물을 고루 비벼 한 그릇에 담아낸 든든한 메뉴예요.', nutrition: '여러 나물·채소로 식이섬유와 비타민을, 밥으로 탄수화물을 고루 섭취해요.', tip: '고추장 양을 줄이면 나트륨 섭취를 낮출 수 있어요.', img: 'https://upload.wikimedia.org/wikipedia/commons/a/ad/Bibimbap_with_side_dishes.jpg', score: 85, benefits: ['다양한 채소', '균형 잡힌 한 끼', '식이섬유'] },
   { name: '콩나물국밥', el: ['목', '수'], nature: '시원하고 개운한', desc: '아삭한 콩나물과 뜨끈한 국물이 속을 개운하게 해줘요.', nutrition: '콩나물의 아스파라긴산과 수분이 풍부해 가벼운 한 끼로 좋아요.', tip: '맵고 짠 양념은 줄이고 국물은 적당히 드세요.', score: 84, benefits: ['수분 보충', '가벼운 소화', '개운한 맛'] },
   { name: '쌈밥 정식', el: ['목'], nature: '향긋하고 순한', desc: '신선한 쌈 채소에 밥을 싸 먹는 산뜻한 한 상이에요.', nutrition: '쌈 채소로 식이섬유와 엽산, 비타민K를 풍부하게 섭취할 수 있어요.', tip: '쌈장은 나트륨이 높으니 소량만 곁들이세요.', score: 82, benefits: ['풍부한 채소', '식이섬유', '비타민'] },
   // 화(불) — 열정·심장·순환
-  { name: '제육볶음', el: ['화'], nature: '매콤하고 따뜻한', desc: '매콤하게 볶은 돼지고기가 밥 한 공기를 뚝딱 비우게 해요.', nutrition: '돼지고기의 양질 단백질과 비타민B1(티아민)이 풍부해요.', tip: '기름·양념이 많을 수 있으니 채소를 곁들여 드세요.', score: 85, benefits: ['든든한 단백질', '비타민B군', '높은 포만감'] },
-  { name: '닭갈비', el: ['화', '금'], nature: '매콤달콤한', desc: '매콤달콤한 양념에 닭고기와 채소를 볶아낸 인기 메뉴예요.', nutrition: '닭고기의 양질 단백질이 풍부하고 지방은 비교적 낮은 편이에요.', tip: '매운 양념과 나트륨이 높을 수 있으니 자극에 약하면 순하게.', score: 83, benefits: ['고단백', '채소 함께', '든든한 포만감'] },
-  { name: '부대찌개', el: ['화', '수'], nature: '얼큰하고 든든한', desc: '얼큰한 국물에 여러 재료가 어우러진 든든한 한 냄비예요.', nutrition: '다양한 재료로 단백질과 열량을 보충하는 든든한 국물 요리예요.', tip: '가공육과 나트륨이 높으니 국물은 적게, 자주 드시진 마세요.', score: 82, benefits: ['든든함', '따뜻한 국물', '높은 포만감'] },
+  { name: '제육볶음', el: ['화'], nature: '매콤하고 따뜻한', desc: '매콤하게 볶은 돼지고기가 밥 한 공기를 뚝딱 비우게 해요.', nutrition: '돼지고기의 양질 단백질과 비타민B1(티아민)이 풍부해요.', tip: '기름·양념이 많을 수 있으니 채소를 곁들여 드세요.', img: 'https://upload.wikimedia.org/wikipedia/commons/8/8b/Jeyuk-bokkeum.jpg', score: 85, benefits: ['든든한 단백질', '비타민B군', '높은 포만감'] },
+  { name: '닭갈비', el: ['화', '금'], nature: '매콤달콤한', desc: '매콤달콤한 양념에 닭고기와 채소를 볶아낸 인기 메뉴예요.', nutrition: '닭고기의 양질 단백질이 풍부하고 지방은 비교적 낮은 편이에요.', tip: '매운 양념과 나트륨이 높을 수 있으니 자극에 약하면 순하게.', img: 'https://upload.wikimedia.org/wikipedia/commons/6/6d/Dak-galbi.jpg', score: 83, benefits: ['고단백', '채소 함께', '든든한 포만감'] },
+  { name: '부대찌개', el: ['화', '수'], nature: '얼큰하고 든든한', desc: '얼큰한 국물에 여러 재료가 어우러진 든든한 한 냄비예요.', nutrition: '다양한 재료로 단백질과 열량을 보충하는 든든한 국물 요리예요.', tip: '가공육과 나트륨이 높으니 국물은 적게, 자주 드시진 마세요.', img: 'https://upload.wikimedia.org/wikipedia/commons/b/b3/Budae_jjigae.jpg', score: 82, benefits: ['든든함', '따뜻한 국물', '높은 포만감'] },
   // 토(흙) — 안정·소화·중심
-  { name: '된장찌개 백반', el: ['토'], nature: '구수하고 든든한', desc: '구수한 된장찌개에 밥을 곁들인 편안한 집밥이에요.', nutrition: '발효 된장의 단백질·유익균과 두부·채소의 식이섬유를 함께 섭취해요.', tip: '된장은 나트륨이 높으니 국물은 너무 짜지 않게 드세요.', score: 85, benefits: ['발효식품', '식물성 단백질', '구수한 포만'] },
-  { name: '삼계탕', el: ['토', '화'], nature: '따뜻하게 보하는', desc: '한 마리 닭에 인삼과 대추를 넣고 푹 끓인 보양식이에요.', nutrition: '닭고기 단백질에 인삼·대추·마늘을 더한 대표적인 보양식이에요.', tip: '열량이 높은 편이라 양을 조절하고 천천히 드세요.', score: 84, benefits: ['고단백 보양', '기력 보충', '속 편한 국물'] },
+  { name: '된장찌개 백반', el: ['토'], nature: '구수하고 든든한', desc: '구수한 된장찌개에 밥을 곁들인 편안한 집밥이에요.', nutrition: '발효 된장의 단백질·유익균과 두부·채소의 식이섬유를 함께 섭취해요.', tip: '된장은 나트륨이 높으니 국물은 너무 짜지 않게 드세요.', img: 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Doenjang-jjigae.jpg', score: 85, benefits: ['발효식품', '식물성 단백질', '구수한 포만'] },
+  { name: '삼계탕', el: ['토', '화'], nature: '따뜻하게 보하는', desc: '한 마리 닭에 인삼과 대추를 넣고 푹 끓인 보양식이에요.', nutrition: '닭고기 단백질에 인삼·대추·마늘을 더한 대표적인 보양식이에요.', tip: '열량이 높은 편이라 양을 조절하고 천천히 드세요.', img: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/Korean.food-Samgyetang-01.jpg', score: 84, benefits: ['고단백 보양', '기력 보충', '속 편한 국물'] },
   { name: '갈비탕', el: ['토', '수'], nature: '담백하고 든든한', desc: '맑게 우려낸 국물에 갈비를 더한 든든한 탕 요리예요.', nutrition: '소고기의 단백질과 철분을 맑은 국물로 보충할 수 있어요.', tip: '기름을 걷어내면 포화지방 섭취를 줄일 수 있어요.', score: 82, benefits: ['양질 단백질', '철분', '맑은 국물'] },
   // 금(쇠) — 결단·폐·정리
-  { name: '생선구이 백반', el: ['금', '수'], nature: '담백하고 정갈한', desc: '노릇하게 구운 생선에 밥과 반찬을 곁들인 정갈한 한 상이에요.', nutrition: '생선의 양질 단백질과 오메가-3 지방산(EPA·DHA)이 풍부해요.', tip: '탄 부위에는 유해물질이 생길 수 있으니 떼어내고 드세요.', score: 83, benefits: ['오메가-3', '양질 단백질', '담백한 맛'] },
-  { name: '갈치조림', el: ['금', '수'], nature: '감칠맛 나고 촉촉한', desc: '무와 함께 조려낸 갈치가 밥도둑이 되어줘요.', nutrition: '갈치의 단백질·불포화지방과 무·채소의 수분을 함께 섭취해요.', tip: '조림 양념은 짤 수 있으니 밥과 함께 슴슴하게 드세요.', score: 81, benefits: ['양질 단백질', '촉촉한 식감', '입맛 살림'] },
+  { name: '생선구이 백반', el: ['금', '수'], nature: '담백하고 정갈한', desc: '노릇하게 구운 생선에 밥과 반찬을 곁들인 정갈한 한 상이에요.', nutrition: '생선의 양질 단백질과 오메가-3 지방산(EPA·DHA)이 풍부해요.', tip: '탄 부위에는 유해물질이 생길 수 있으니 떼어내고 드세요.', img: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Godeungeo-gui.jpg', score: 83, benefits: ['오메가-3', '양질 단백질', '담백한 맛'] },
+  { name: '갈치조림', el: ['금', '수'], nature: '감칠맛 나고 촉촉한', desc: '무와 함께 조려낸 갈치가 밥도둑이 되어줘요.', nutrition: '갈치의 단백질·불포화지방과 무·채소의 수분을 함께 섭취해요.', tip: '조림 양념은 짤 수 있으니 밥과 함께 슴슴하게 드세요.', img: 'https://upload.wikimedia.org/wikipedia/commons/c/c0/Galchi-jorim.jpg', score: 81, benefits: ['양질 단백질', '촉촉한 식감', '입맛 살림'] },
   { name: '칼국수', el: ['금', '토'], nature: '따뜻하고 구수한', desc: '쫄깃한 면을 뜨끈한 국물에 끓여낸 따뜻한 한 그릇이에요.', nutrition: '면과 국물로 탄수화물과 수분을 보충하는 따뜻한 한 그릇이에요.', tip: '국물에는 나트륨이 많을 수 있으니 다 드시지 않는 게 좋아요.', score: 80, benefits: ['따뜻한 포만', '구수한 국물', '부담 적은 한 끼'] },
 ];
 
@@ -80,6 +80,9 @@ export function recommendTodayFood(saju) {
   let pool = FOODS.filter(f => f.el.includes(focusEl));
   if (pool.length < 2) pool = pool.concat(FOODS.filter(f => f.el.includes(parent)));
   if (!pool.length) pool = FOODS.slice();
+  // 추천 카드에 항상 실제 사진이 뜨도록 이미지 있는 메뉴를 우선(있을 때만).
+  const withImg = pool.filter(f => f.img);
+  if (withImg.length) pool = withImg;
 
   // 날짜+사주 시드로 오늘의 한 그릇을 고정 선택(매일 바뀜)
   const seed = seedOf(`${todayKeyLocal()}|${focusEl}|${(saju?.ilju || '')}`);
@@ -104,6 +107,7 @@ export function recommendTodayFood(saju) {
     nutrition: pick.nutrition,
     tip: pick.tip,
     benefits: pick.benefits || [],
+    img: pick.img || null,
     alternatives,
     focusEl,
     focusPlain: PLAIN[focusEl],

@@ -66,8 +66,8 @@ import {
   RitualReveal, ElementConstellation, Eyebrow, OrbitRings, GoldHairline,
 } from './ui/celestial.jsx';
 import { ensureFoodUser, analyzeFood, analyzeFoodLocal } from './lib/foodApi.js';
-import { recommendTodayFood, recommendTodayFoodAI, openNearbyRestaurants } from './lib/foodReco.js';
-import { hasPlacesKey, searchRestaurantsByDishes, fetchFoodImage } from './lib/places.js';
+import { recommendTodayFood, openNearbyRestaurants } from './lib/foodReco.js';
+import { hasPlacesKey, searchRestaurantsByDishes } from './lib/places.js';
 import { hasKakaoJsKey, loadKakaoMaps } from './lib/kakaoMap.js';
 import { BackBar, ErrorBox } from './ui/bits.jsx';
 import { dailyLine, getDiary, setDiaryEntry, deleteDiaryEntry, MOODS, isoDate } from './lib/diary.js';
@@ -2863,8 +2863,7 @@ function FoodTable({ nickname, birth, onBack }) {
   const [places, setPlaces] = useState(null);    // 카카오 주변 식당(오행 매칭)
   const [placesLoading, setPlacesLoading] = useState(false);
   const [placesErr, setPlacesErr] = useState('');
-  const [aiReco, setAiReco] = useState(null);    // AI 오늘의 메뉴(진입 시 백그라운드 요청, 하루 캐시)
-  const [foodImg, setFoodImg] = useState(null);  // 메뉴 대표 사진(카카오 이미지 검색, 프리로드 후 표시)
+  const [foodImg, setFoodImg] = useState(null);  // 메뉴 대표 사진(큐레이션 URL, 프리로드 성공 시 표시)
 
   // 내 기운(오행 분포) — '오늘의 기운' 진단 비주얼/문구의 근거
   const saju = useMemo(() => { try { return calculateSaju(birth); } catch (e) { return null; } }, [birth]);
@@ -2880,18 +2879,6 @@ function FoodTable({ nickname, birth, onBack }) {
       .catch(() => { if (alive) setLoadErr(true); });
     return () => { alive = false; };
   }, []);
-
-  // AI 오늘의 메뉴 — 진입하자마자 요청해서 '뚜껑 여는 동안' 받아온다(하루 1회 캐시, 실패 시 로컬 폴백).
-  useEffect(() => {
-    if (!saju || !hasApiKey()) return;
-    let alive = true;
-    const key = `cm_food_ai_${todayKey()}_${saju.ilju || ''}`;
-    try { const c = localStorage.getItem(key); if (c) { setAiReco(JSON.parse(c)); return; } } catch (e) {}
-    recommendTodayFoodAI(saju)
-      .then(r => { if (!alive) return; setAiReco(r); try { localStorage.setItem(key, JSON.stringify(r)); } catch (e) {} })
-      .catch(() => {}); // 실패하면 로컬 추천이 그대로 쓰인다
-    return () => { alive = false; };
-  }, [saju]);
 
   const doSearch = async () => {
     const query = q.trim();
@@ -2952,33 +2939,21 @@ function FoodTable({ nickname, birth, onBack }) {
 
   // 오늘의 한 그릇 — 검색 결과 > AI 추천 > 즉시 로컬 추천(폴백) 순. AI는 진입 시 백그라운드로 받아둔다.
   const todayReco = useMemo(() => (saju ? recommendTodayFood(saju) : null), [saju]);
-  const shown = result || aiReco || todayReco;
+  const shown = result || todayReco;
   const isReco = !result;
   const cat = shown ? (FOOD_CAT[shown.category] || FOOD_CAT.C_GENERAL) : null;
   const danger = shown?.category === 'D_PSEUDO';
 
-  // 메뉴 사진 — 후보를 앞에서부터 로드 시도(고화질 원본 우선 → 썸네일 → 다음 후보). 다 실패하면 이모지.
+  // 메뉴 사진 — 메뉴에 박아둔 큐레이션 이미지(위키미디어)를 프리로드 성공 시에만 표시(깨지면 이모지).
   useEffect(() => {
-    const name = shown?.foodName;
+    const url = shown?.img;
     setFoodImg(null);
-    if (!name) return;
+    if (!url) return;
     let alive = true;
-    const preload = (url) => new Promise((resolve) => {
-      if (!url) return resolve(false);
-      const im = new Image();
-      im.referrerPolicy = 'no-referrer';   // referer 기반 핫링크 차단 회피
-      im.onload = () => resolve(im.naturalWidth >= 200);  // 너무 작은/깨진 건 거름
-      im.onerror = () => resolve(false);
-      im.src = url;
-    });
-    (async () => {
-      const cands = await fetchFoodImage(name);
-      for (const c of (cands || [])) {
-        if (!alive) return;
-        if (await preload(c.image)) { if (alive) setFoodImg(c.image); return; }
-        if (await preload(c.thumb)) { if (alive) setFoodImg(c.thumb); return; }
-      }
-    })();
+    const im = new Image();
+    im.referrerPolicy = 'no-referrer';
+    im.onload = () => { if (alive && im.naturalWidth >= 100) setFoodImg(url); };
+    im.src = url;
     return () => { alive = false; };
   }, [shown?.foodName]);
 
