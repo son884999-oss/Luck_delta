@@ -117,8 +117,10 @@ export default function ClassicsLibrary({ birth, onBack }) {
         <OrnLine w={150}/>
       </header>
 
-      {/* 카테고리 탭 — 줄바꿈 + 색 인장 점(데스크톱·모바일 모두 스크롤 없이) */}
-      <div className="flex flex-wrap gap-2 px-1">
+      {/* 카테고리 탭 — 한 줄 가로 스크롤(휠·스와이프) + 양끝 페이드로 '더 있음' 암시 */}
+      <div className="relative -mx-1">
+      <div onWheel={(e) => { if (e.deltaY) e.currentTarget.scrollLeft += e.deltaY; }}
+        className="flex gap-2 overflow-x-auto no-scrollbar px-1 pb-1" style={{ scrollBehavior:'smooth' }}>
         {TABS.map(t => {
           const active = tab === t.key;
           return (
@@ -132,6 +134,9 @@ export default function ClassicsLibrary({ birth, onBack }) {
             </button>
           );
         })}
+      </div>
+        <div className="absolute left-0 top-0 w-7 pointer-events-none" style={{ bottom:4, background:'linear-gradient(to right, var(--bg), transparent)' }}/>
+        <div className="absolute right-0 top-0 w-7 pointer-events-none" style={{ bottom:4, background:'linear-gradient(to left, var(--bg), transparent)' }}/>
       </div>
 
       {tab === 'today' && (
