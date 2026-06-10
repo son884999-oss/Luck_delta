@@ -30,6 +30,9 @@ function renderReport(d, theme, cfg) {
   const SEC = cfg.variant === 'study' ? p.gold
             : cfg.variant === 'gunghap' ? p.violet
             : p.violet;                                                // 2차 강조
+  // 금빛 = 모든 리포트 공통의 장식 프레임/서브컬러(표지·코너·구분선 등).
+  // 내용 강조색(PRI)은 리포트별 정체성을 유지하되, 장식 크롬은 금빛으로 톤을 통일한다.
+  const GOLD = p.gold;
   const s = d.saju || {};
 
   /* ── 빌더 ── */
@@ -118,7 +121,14 @@ function renderReport(d, theme, cfg) {
     const dataPoly = counts.map((c, i) => pt(i, Math.max(c / max, 0.08) * R).map(n => n.toFixed(1)).join(',')).join(' ');
     const dots = counts.map((c, i) => { const [x, y] = pt(i, Math.max(c / max, 0.08) * R); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.2" fill="${ELEM[PENTA[i]].color}"/>`; }).join('');
     const labels = PENTA.map((k, i) => { const [x, y] = pt(i, R + 18); const e = ELEM[k]; return `<text x="${x.toFixed(1)}" y="${(y + 5).toFixed(1)}" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="15" font-weight="700" fill="${e.color}">${e.hanja}</text>`; }).join('');
-    return `<svg width="232" height="244" viewBox="0 0 232 244" fill="none">${grid}${axes}<polygon points="${dataPoly}" fill="${hexA(PRI, 0.16)}" stroke="${PRI}" stroke-width="1.6"/>${dots}${labels}</svg>`;
+    return `<svg width="232" height="244" viewBox="0 0 232 244" fill="none">
+      <defs><radialGradient id="radarFill" cx="50%" cy="48%" r="62%">
+        <stop offset="0%" stop-color="${hexA(PRI, 0.46)}"/><stop offset="70%" stop-color="${hexA(PRI, 0.18)}"/><stop offset="100%" stop-color="${hexA(SEC, 0.06)}"/>
+      </radialGradient></defs>
+      <circle cx="116" cy="120" r="86" fill="${hexA(PRI, 0.035)}"/>
+      ${grid}${axes}
+      <polygon points="${dataPoly}" fill="url(#radarFill)" stroke="${PRI}" stroke-width="2"/>
+      ${dots}${labels}</svg>`;
   })();
 
   const domKey = (s.dominant || ['토'])[0], lackKey = (s.lacking || [])[0];
@@ -134,7 +144,29 @@ function renderReport(d, theme, cfg) {
     const x = 210 + r * Math.cos(a), y = 210 + r * Math.sin(a);
     return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.6" fill="${ELEM[k].color}"/>`;
   }).join('');
+  // 표지 선버스트 — 중심에서 뻗는 금빛 빛살(고급 인장 느낌)
+  const coverSunburst = [...Array(48)].map((_, i) => {
+    const a = i * 7.5 * Math.PI / 180, r1 = 66, r2 = i % 2 ? 92 : 112;
+    const x1 = 210 + r1 * Math.cos(a), y1 = 210 + r1 * Math.sin(a);
+    const x2 = 210 + r2 * Math.cos(a), y2 = 210 + r2 * Math.sin(a);
+    return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${hexA(GOLD, i % 2 ? 0.12 : 0.22)}" stroke-width="0.7"/>`;
+  }).join('');
+  // 표지에 흩뿌린 별 — 깊이감(좌표는 고정 시드로 결정적)
+  const coverStars = [[38,58],[372,72],[58,330],[360,348],[120,40],[300,388],[28,200],[398,250],[180,30],[244,400],[90,118],[330,150],[150,392],[280,52]]
+    .map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="${i % 3 === 0 ? 1.8 : 1.1}" fill="${i % 2 ? SEC : GOLD}" opacity="${i % 3 === 0 ? 0.7 : 0.4}"/>`).join('');
   const corners = `<span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span><span class="corner-dot tl"></span><span class="corner-dot tr"></span><span class="corner-dot bl"></span><span class="corner-dot br"></span>`;
+
+  /* ── 금빛 필리그리 구분선 — 표지·엔딩·섹션 공용 장식(SVG라 PDF에 선명) ── */
+  const ornDivider = (w = 190, c = GOLD, c2 = SEC) => `
+    <svg width="${w}" height="18" viewBox="0 0 ${w} 18" fill="none" style="display:block;margin:0 auto;">
+      <line x1="10" y1="9" x2="${w / 2 - 30}" y2="9" stroke="${hexA(c, 0.45)}" stroke-width="1"/>
+      <line x1="${w / 2 + 30}" y1="9" x2="${w - 10}" y2="9" stroke="${hexA(c, 0.45)}" stroke-width="1"/>
+      <path d="M${w / 2 - 26} 9 Q${w / 2 - 13} 2.5 ${w / 2} 9 Q${w / 2 + 13} 15.5 ${w / 2 + 26} 9" stroke="${c}" stroke-width="1.1" fill="none"/>
+      <path d="M${w / 2 - 26} 9 Q${w / 2 - 13} 15.5 ${w / 2} 9 Q${w / 2 + 13} 2.5 ${w / 2 + 26} 9" stroke="${hexA(c, 0.5)}" stroke-width="0.8" fill="none"/>
+      <circle cx="${w / 2}" cy="9" r="2.8" fill="${c}"/>
+      <circle cx="${w / 2 - 26}" cy="9" r="1.8" fill="${c2}"/><circle cx="${w / 2 + 26}" cy="9" r="1.8" fill="${c2}"/>
+      <circle cx="10" cy="9" r="1.5" fill="${hexA(c, 0.7)}"/><circle cx="${w - 10}" cy="9" r="1.5" fill="${hexA(c, 0.7)}"/>
+    </svg>`;
 
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -196,8 +228,9 @@ function renderReport(d, theme, cfg) {
   .lead { orphans:4; widows:4; break-inside:avoid; }
 
   /* ── 소목차 블록 ── */
-  .subsec { break-inside:avoid; margin-bottom:22pt; padding:16pt 20pt; border-radius:16px; background:${hexA(PRI,0.04)}; border-left:3pt solid ${hexA(PRI,0.45)}; }
+  .subsec { break-inside:avoid; margin-bottom:22pt; padding:16pt 20pt; border-radius:16px; background:linear-gradient(135deg, ${hexA(PRI,0.075)} 0%, ${hexA(PRI,0.02)} 70%); border-left:3pt solid ${hexA(PRI,0.55)}; box-shadow:0 3px 14px ${hexA(PRI,0.06)}; }
   .subsec-title { font-size:14pt; font-weight:700; color:${PRI}; margin-bottom:10pt; letter-spacing:0.01em; }
+  .subsec-title::before { content:'✦ '; font-size:0.82em; color:${hexA(PRI,0.65)}; }
   .subsec .body { margin-bottom:0; }
 
   .chips { display:flex; flex-wrap:wrap; gap:8pt; margin:2pt 0 22pt; break-inside:avoid; }
@@ -207,10 +240,11 @@ function renderReport(d, theme, cfg) {
 
   /* ── 인용구 — 폭이 넓고 시각적으로 강하게 ── */
   .pquote {
-    font-size:17pt; line-height:1.85; font-weight:500; color:${p.ink};
-    border-left:4px solid; padding:10pt 18pt 10pt 22pt; margin:4pt 0 26pt; break-inside:avoid;
-    background:${hexA(PRI, 0.06)}; border-radius:0 16px 16px 0;
-    box-shadow: inset 0 0 0 1px ${hexA(PRI, 0.10)};
+    position:relative; font-size:17pt; line-height:1.85; font-weight:500; color:${p.ink};
+    border-left:4px solid; padding:13pt 20pt 13pt 24pt; margin:4pt 0 26pt; break-inside:avoid;
+    background:linear-gradient(135deg, ${hexA(PRI, 0.11)} 0%, ${hexA(PRI, 0.03)} 60%, ${hexA(SEC, 0.04)} 100%);
+    border-radius:0 16px 16px 0;
+    box-shadow: inset 0 0 0 1px ${hexA(PRI, 0.12)}, 0 4px 18px ${hexA(PRI, 0.08)};
   }
   .pquote .qm { font-size:21pt; font-weight:700; }
 
@@ -254,19 +288,19 @@ function renderReport(d, theme, cfg) {
   .corner { position:absolute; width:32pt; height:32pt; z-index:3; }
   .corner::before, .corner::after { content:''; position:absolute; }
   .corner.tl { top:12mm; left:12mm; }
-  .corner.tl::before { top:0; left:0; right:0; height:1.5pt; background:${hexA(PRI,0.7)}; }
-  .corner.tl::after  { top:0; left:0; bottom:0; width:1.5pt; background:${hexA(PRI,0.7)}; }
+  .corner.tl::before { top:0; left:0; right:0; height:1.5pt; background:${hexA(GOLD,0.7)}; }
+  .corner.tl::after  { top:0; left:0; bottom:0; width:1.5pt; background:${hexA(GOLD,0.7)}; }
   .corner.tr { top:12mm; right:12mm; }
-  .corner.tr::before { top:0; left:0; right:0; height:1.5pt; background:${hexA(PRI,0.7)}; }
-  .corner.tr::after  { top:0; right:0; bottom:0; width:1.5pt; background:${hexA(PRI,0.7)}; }
+  .corner.tr::before { top:0; left:0; right:0; height:1.5pt; background:${hexA(GOLD,0.7)}; }
+  .corner.tr::after  { top:0; right:0; bottom:0; width:1.5pt; background:${hexA(GOLD,0.7)}; }
   .corner.bl { bottom:12mm; left:12mm; }
-  .corner.bl::before { bottom:0; left:0; right:0; height:1.5pt; background:${hexA(PRI,0.7)}; }
-  .corner.bl::after  { top:0; left:0; bottom:0; width:1.5pt; background:${hexA(PRI,0.7)}; }
+  .corner.bl::before { bottom:0; left:0; right:0; height:1.5pt; background:${hexA(GOLD,0.7)}; }
+  .corner.bl::after  { top:0; left:0; bottom:0; width:1.5pt; background:${hexA(GOLD,0.7)}; }
   .corner.br { bottom:12mm; right:12mm; }
-  .corner.br::before { bottom:0; left:0; right:0; height:1.5pt; background:${hexA(PRI,0.7)}; }
-  .corner.br::after  { top:0; right:0; bottom:0; width:1.5pt; background:${hexA(PRI,0.7)}; }
+  .corner.br::before { bottom:0; left:0; right:0; height:1.5pt; background:${hexA(GOLD,0.7)}; }
+  .corner.br::after  { top:0; right:0; bottom:0; width:1.5pt; background:${hexA(GOLD,0.7)}; }
   /* 안쪽 작은 점 — 고급 인쇄물 느낌 */
-  .corner-dot { position:absolute; width:5pt; height:5pt; border-radius:50%; background:${hexA(PRI,0.55)}; z-index:4; }
+  .corner-dot { position:absolute; width:5pt; height:5pt; border-radius:50%; background:${hexA(GOLD,0.6)}; z-index:4; }
   .corner-dot.tl { top:14.5mm; left:14.5mm; }
   .corner-dot.tr { top:14.5mm; right:14.5mm; }
   .corner-dot.bl { bottom:14.5mm; left:14.5mm; }
@@ -284,10 +318,11 @@ function renderReport(d, theme, cfg) {
   }
   .cover .constel { position:absolute; top:50%; left:50%; transform:translate(-50%,-54%); opacity:0.65; }
   .cover .inner { position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; }
-  .cover .eyebrow { font-size:10.5pt; letter-spacing:0.72em; color:${SEC}; font-weight:700; margin-bottom:16pt; opacity:0.9; }
+  .cover .eyebrow { font-size:10.5pt; letter-spacing:0.72em; color:${GOLD}; font-weight:700; margin-bottom:16pt; opacity:0.9; }
   .cover .forwhom { font-size:12pt; color:${p.dim}; letter-spacing:0.06em; margin-bottom:18pt; }
   .cover .forwhom b { color:${p.ink}; font-weight:700; }
-  .cover .logo { font-size:56pt; font-weight:900; color:${p.logo}; letter-spacing:0.36em; text-shadow:${p.logoShadow}, 0 0 60px ${hexA(PRI,0.3)}; margin:8pt 0 4pt; }
+  .cover .logo { position:relative; font-size:56pt; font-weight:900; color:${p.logo}; letter-spacing:0.36em; text-shadow:${p.logoShadow}, 0 0 60px ${hexA(GOLD,0.35)}; margin:8pt 0 4pt; }
+  .cover .logo::before { content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:340pt; height:210pt; border-radius:50%; background:radial-gradient(ellipse, ${hexA(GOLD,0.32)} 0%, ${hexA(SEC,0.12)} 38%, transparent 64%); z-index:-1; pointer-events:none; }
   .cover .mark { font-size:12pt; color:${PRI}; margin:9pt 0; letter-spacing:0.6em; opacity:0.8; }
   .cover .sub { font-size:17pt; font-weight:700; color:${p.ink}; letter-spacing:0.20em; margin-bottom:5pt; }
   .cover .sub2 { font-size:9.5pt; color:${p.dim}; letter-spacing:0.32em; margin-top:26pt; padding-top:17pt; border-top:1px solid ${hexA(PRI,0.22)}; }
@@ -304,11 +339,11 @@ function renderReport(d, theme, cfg) {
   }
   .cover .cover-bar::before {
     content:''; display:block; height:5pt;
-    background:linear-gradient(to right,transparent,${PRI},${SEC},${PRI},transparent); opacity:0.75;
+    background:linear-gradient(to right,transparent,${GOLD},${SEC},${GOLD},transparent); opacity:0.8;
   }
   .cover .cover-bar::after {
     content:''; display:block; height:1.5pt;
-    background:linear-gradient(to right,transparent,${hexA(PRI,0.5)},transparent); opacity:0.6;
+    background:linear-gradient(to right,transparent,${hexA(GOLD,0.5)},transparent); opacity:0.6;
     margin-top:2pt;
   }
 
@@ -323,7 +358,7 @@ function renderReport(d, theme, cfg) {
 
   .pillars { display:flex; gap:10pt; margin:6pt 0 10pt; break-inside:avoid; }
   .pcard { position:relative; flex:1; border:1.5px solid ${p.hair}; border-radius:18px; padding:17pt 4pt 14pt; text-align:center; background:${p.card}; }
-  .pcard-hl { border-color:${hexA(PRI, 0.58)}; box-shadow:0 6px 28px ${hexA(PRI,0.18)},${p.shadowHi}; background:${p.bgHighlight}; }
+  .pcard-hl { border-color:${hexA(PRI, 0.58)}; box-shadow:0 8px 30px ${hexA(PRI,0.22)},${p.shadowHi}; background:linear-gradient(165deg, ${hexA(PRI,0.16)} 0%, ${hexA(PRI,0.05)} 55%, ${hexA(SEC,0.05)} 100%); }
   .pcard-tag { position:absolute; top:-9pt; left:50%; transform:translateX(-50%); font-size:8pt; font-weight:700; color:#fff; background:${PRI}; border-radius:999px; padding:2pt 11pt; letter-spacing:0.05em; box-shadow:0 3px 12px ${hexA(PRI,0.4)}; }
   .pcard .pk { font-size:9.5pt; font-weight:700; color:${p.ink}; }
   .pcard .pk-sub { display:block; font-size:7.5pt; font-weight:400; color:${p.dim}; margin-top:2pt; }
@@ -342,8 +377,8 @@ function renderReport(d, theme, cfg) {
   .obar { display:flex; align-items:center; gap:12pt; margin-bottom:12pt; }
   .obar .ol { flex:0 0 56pt; font-size:10.5pt; font-weight:500; color:${p.body}; }
   .obar .ol .oh { font-weight:700; margin-right:7pt; }
-  .obar .otrack { flex:1; height:10pt; border-radius:999px; background:${hexA(p.ink, 0.07)}; overflow:hidden; }
-  .obar .ofill { height:100%; border-radius:999px; }
+  .obar .otrack { flex:1; height:11pt; border-radius:999px; background:${hexA(p.ink, 0.07)}; overflow:hidden; box-shadow:inset 0 1px 2px ${hexA(p.ink,0.10)}; }
+  .obar .ofill { height:100%; border-radius:999px; box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.28), 0 0 8px ${hexA(PRI,0.18)}; }
   .obar .oc { flex:0 0 18pt; text-align:right; font-size:10pt; font-weight:700; color:${p.dim}; }
   .balance-note { font-size:11pt; line-height:1.75; color:${p.body}; margin-top:17pt; padding:14pt 20pt; background:${hexA(SEC, 0.07)}; border-radius:14px; border:1px solid ${hexA(SEC, 0.20)}; }
   .ohaeng-read { margin-top:19pt; }
@@ -386,7 +421,7 @@ function renderReport(d, theme, cfg) {
   .chem-text { font-size:12pt; line-height:1.7; color:${p.body}; margin:0; }
 
   /* ── 연도 카드 ── */
-  .ycard { border:1.5px solid ${p.hair}; border-radius:18px; padding:15pt 20pt; margin-bottom:12pt; background:${p.card}; break-inside:avoid; border-left:4pt solid ${hexA(PRI, 0.55)}; box-shadow:0 2px 12px ${hexA(PRI,0.07)}; }
+  .ycard { border:1.5px solid ${hexA(PRI,0.18)}; border-radius:18px; padding:15pt 20pt; margin-bottom:12pt; background:linear-gradient(135deg, ${hexA(PRI,0.07)} 0%, ${p.card} 60%); break-inside:avoid; border-left:4pt solid ${PRI}; box-shadow:0 4px 18px ${hexA(PRI,0.10)}; }
   .yhead { display:flex; align-items:center; gap:12pt; margin-bottom:9pt; }
   .yy { font-size:18pt; font-weight:700; color:${PRI}; }
   .ykw { font-size:9.5pt; font-weight:700; color:${SEC}; background:${hexA(SEC, 0.10)}; border-radius:8px; padding:3pt 12pt; border:1px solid ${hexA(SEC, 0.26)}; }
@@ -401,9 +436,9 @@ function renderReport(d, theme, cfg) {
       radial-gradient(ellipse at 20% 80%, ${hexA(SEC, 0.10)} 0%, transparent 44%),
       ${p.pageBg};
   }
-  .ending::before { content:''; position:absolute; top:0; left:0; right:0; height:4pt; background:linear-gradient(to right,transparent,${PRI},${SEC},${PRI},transparent); opacity:0.65; }
-  .ending::after  { content:''; position:absolute; bottom:0; left:0; right:0; height:1.5pt; background:linear-gradient(to right,transparent,${hexA(PRI,0.5)},transparent); opacity:0.5; }
-  .ending .logo { font-size:48pt; font-weight:900; color:${p.logo}; letter-spacing:0.32em; margin-top:12pt; text-shadow:${p.logoShadow}, 0 0 50px ${hexA(PRI,0.25)}; }
+  .ending::before { content:''; position:absolute; top:0; left:0; right:0; height:4pt; background:linear-gradient(to right,transparent,${GOLD},${SEC},${GOLD},transparent); opacity:0.65; }
+  .ending::after  { content:''; position:absolute; bottom:0; left:0; right:0; height:1.5pt; background:linear-gradient(to right,transparent,${hexA(GOLD,0.5)},transparent); opacity:0.5; }
+  .ending .logo { font-size:48pt; font-weight:900; color:${p.logo}; letter-spacing:0.32em; margin-top:12pt; text-shadow:${p.logoShadow}, 0 0 50px ${hexA(GOLD,0.25)}; }
   .ending .eline { font-style:italic; font-size:15pt; color:${p.body}; line-height:2.1; margin-top:28pt; max-width:140mm; }
   .ending .eorn { color:${PRI}; font-size:12pt; margin:30pt 0 15pt; letter-spacing:0.6em; opacity:0.75; }
   .ending .efoot { font-size:8.5pt; letter-spacing:0.38em; color:${p.dim}; }
@@ -416,6 +451,8 @@ function renderReport(d, theme, cfg) {
   <section class="cover page">
     ${corners}
     <svg class="constel" width="420" height="420" viewBox="0 0 420 420" fill="none">
+      ${coverSunburst}
+      ${coverStars}
       <circle cx="210" cy="210" r="180" stroke="${PRI}" stroke-width="0.5" opacity="0.3"/>
       <circle cx="210" cy="210" r="130" stroke="${SEC}" stroke-width="0.5" opacity="0.24"/>
       <circle cx="210" cy="210" r="76" stroke="${PRI}" stroke-width="0.5" opacity="0.2"/>
@@ -435,7 +472,7 @@ function renderReport(d, theme, cfg) {
       ${d.nickname ? `<div class="forwhom"><b>${esc(d.nickname)}</b>님을 위한 ${esc(cfg.forwhom)}</div>` : ''}
       <div class="logo serif">天 文</div>
       ${d.ilju ? `<div class="ilju-hanja serif">${esc(d.ilju)}</div>` : ''}
-      <div class="mark">✦ ✦ ✦</div>
+      <div class="mark">${ornDivider(210)}</div>
       ${d.iljuLine ? `<div class="ilju-line serif">${esc(refine(d.iljuLine))}</div>` : ''}
       <div class="sub2">天文 AI · ${esc(d.date || '')}</div>
     </div>
@@ -484,7 +521,7 @@ function renderReport(d, theme, cfg) {
     </svg>
     <div class="logo serif">天 文</div>
     <div class="eline serif">“${esc(refine(cfg.closing))}”</div>
-    <div class="eorn">— ✦ —</div>
+    <div class="eorn">${ornDivider(180)}</div>
     <div class="efoot">${esc(cfg.foot)}</div>
     <div class="esign">${esc(d.nickname || '')}님을 위해 · ${esc(d.date || '')}</div>
   </section>
