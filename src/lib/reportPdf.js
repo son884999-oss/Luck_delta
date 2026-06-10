@@ -226,6 +226,11 @@ function renderReport(d, theme, cfg) {
   /* ── 본문 ── */
   .body { font-size:13pt; line-height:1.82; color:${p.body}; margin-bottom:13pt; font-weight:400; letter-spacing:-0.003em; orphans:4; widows:4; word-break:keep-all; overflow-wrap:break-word; break-inside:avoid; }
   .lead { orphans:4; widows:4; break-inside:avoid; }
+  /* 드롭캡 — 첫 글자를 크게(책 같은 소장감, 휑한 총평 채움) */
+  .dropcap { float:left; font-family:'Noto Serif KR',serif; font-size:52pt; font-weight:900; line-height:0.8; margin:4pt 11pt 0 0; }
+  /* 키워드 밴드 — 성격·재능 섹션 하단 칩 모음으로 여백 채움 */
+  .chip-band { margin-top:22pt; padding-top:17pt; border-top:1px solid ${hexA(PRI, 0.16)}; break-inside:avoid; }
+  .chip-band-k { font-size:9pt; font-weight:700; letter-spacing:0.22em; margin-bottom:12pt; text-transform:uppercase; }
 
   /* ── 소목차 블록 ── */
   .subsec { break-inside:avoid; margin-bottom:22pt; padding:16pt 20pt; border-radius:16px; background:linear-gradient(135deg, ${hexA(PRI,0.075)} 0%, ${hexA(PRI,0.02)} 70%); border-left:3pt solid ${hexA(PRI,0.55)}; box-shadow:0 3px 14px ${hexA(PRI,0.06)}; }
@@ -562,6 +567,16 @@ export function renderReportPdfHtml(d, theme = 'dark') {
     foot: '天文 AI · 한국형 정밀 운세 리포트',
     makeBody: (b) => {
       const { paras, chips, textSec, area, phase, cards, ELEM, PRI, SEC, d, domKey, lackKey, domPlain, lackPlain } = b;
+      // 휑한 텍스트 섹션 보강 — 드롭캡(총평) + 키워드/적성 칩 밴드(성격·재능)
+      const dropcapParas = (t, accent) => {
+        const arr = String(t ?? '').split(/\n{2,}|\n/).map(x => x.trim()).filter(Boolean);
+        if (!arr.length) return '';
+        const f = arr[0];
+        const head = `<p class="body lead"><span class="dropcap serif" style="color:${accent}">${esc(f.charAt(0))}</span>${esc(refine(f.slice(1)))}</p>`;
+        return head + arr.slice(1).map(x => `<p class="body">${esc(refine(x))}</p>`).join('');
+      };
+      const chipBand = (label, arr, accent) => (arr && arr.length)
+        ? `<div class="chip-band"><div class="chip-band-k" style="color:${accent}">${esc(label)}</div>${chips(arr, accent)}</div>` : '';
       // 한눈에 보기 — 명식 다음 단독 페이지. 일주 히어로 + 한 줄 요약 + 핵심 요약 카드로 페이지를 채운다.
       // (타원형 칩은 한눈에 보기에만 — 본문 섹션에는 쓰지 않는다)
       const keyLine = (d.keywords && d.keywords.length)
@@ -615,9 +630,9 @@ export function renderReportPdfHtml(d, theme = 'dark') {
         </div>` : '';
       return [
         textSec('', '한눈에 보기', overviewInner, PRI, '覽'),
-        textSec('I', '사주 총평', paras(d.sajuReading, true), PRI, '命'),
-        textSec('II', '타고난 성격', paras(d.personality, true), SEC, '性'),
-        textSec('III', '재능과 적성', paras(d.talent, true), PRI, '才'),
+        textSec('I', '사주 총평', dropcapParas(d.sajuReading, PRI), PRI, '命'),
+        textSec('II', '타고난 성격', `${paras(d.personality, true)}${chipBand('성향 키워드', d.keywords, SEC)}`, SEC, '性'),
+        textSec('III', '재능과 적성', `${paras(d.talent, true)}${chipBand('어울리는 분야', d.talentFields, PRI)}`, PRI, '才'),
         area('IV', '재물운', d.wealth, ELEM['금'].color, '財'),
         area('V', '애정과 인연', d.love, ELEM['화'].color, '緣'),
         area('VI', '직업과 사회운', d.career, ELEM['목'].color, '職'),

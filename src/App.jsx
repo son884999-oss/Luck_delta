@@ -1048,7 +1048,7 @@ function Hub({ nickname, birth, oh, error, onPick, onEditBirth,
         ].map((c) => (
           <button key={c.key} onClick={() => { c.onClick(); vibrate(12); playNavigation(); }}
             className="w-full block group active:scale-[0.985] transition-transform">
-            <div className={`glass-strong rounded-[20px] relative overflow-hidden text-left ${c.accent ? 'luxe-sheen' : ''}`}
+            <div className="glass-strong rounded-[20px] relative overflow-hidden text-left"
               style={{ border: c.accent ? `1.5px solid ${c.color}55` : `1px solid ${c.color}2e`,
                 boxShadow: c.accent ? `0 6px 22px ${c.color}1f` : undefined }}>
               <div className="absolute pointer-events-none" style={{ right:-16, top:-16, width:104, height:104, borderRadius:'50%', background:`${c.color}14`, filter:'blur(26px)' }}/>
@@ -2984,10 +2984,6 @@ function FoodTable({ nickname, birth, onBack }) {
       {/* 따뜻한 빛 — 수증기처럼 퍼지는 중앙 글로우 */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background:`radial-gradient(ellipse 72% 56% at 50% 42%, rgba(240,180,41,0.20) 0%, transparent 70%)`}}/>
-      {/* 회전하는 금빛 후광 — 이모지 뒤 화려한 빛 */}
-      <div className="absolute pointer-events-none" style={{ width:'80%', aspectRatio:'1/1', borderRadius:'50%',
-        background:'conic-gradient(from 0deg, transparent, rgba(240,180,41,0.18), transparent 40%, rgba(255,221,148,0.13), transparent 70%, rgba(240,180,41,0.18), transparent)',
-        animation:'halo-spin 18s linear infinite' }}/>
       {/* 식재료 결 텍스처 — 가로 얇은 줄 */}
       {[20,35,52,68,83].map(y => (
         <div key={y} className="absolute left-0 right-0 pointer-events-none"
