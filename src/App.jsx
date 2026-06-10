@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Fingerprint, Heart, Coins, Wand2, Trash2, Eye, Shield, Pencil,
   TrendingUp, ChevronDown, ChevronRight, Sparkles, X, Calendar, Star, Zap, Clock, Users, Home,
-  Crown, VolumeX, Volume2, GraduationCap, Utensils, Search, MapPin, Music,
+  Crown, VolumeX, Volume2, GraduationCap, Utensils, Search, MapPin, Music, BookOpen,
 } from 'lucide-react';
 import {
   OHAENG, calculateIlju, calculateSaju, getOhaeng, getTti, todayStr, todayKey, vibrate, weekRangeStr, getRelationshipArchetype,
@@ -62,6 +62,7 @@ import { recommendTodayFood, openNearbyRestaurants, pickFoodEmoji } from './lib/
 import { hasPlacesKey, searchRestaurantsByDishes } from './lib/places.js';
 import { hasKakaoJsKey, loadKakaoMaps } from './lib/kakaoMap.js';
 import { BackBar, ErrorBox } from './ui/bits.jsx';
+import ClassicsLibrary from './ui/ClassicsLibrary.jsx';
 import { dailyLine, getDiary, setDiaryEntry, deleteDiaryEntry, MOODS, isoDate } from './lib/diary.js';
 import { shareImage, buildShareUrl } from './ui/shareCard.js';
 
@@ -512,6 +513,7 @@ export default function App() {
             onCategoryRelate={() => { setStep('categoryRelate'); vibrate(14); playNavigation(); }}
             onCategoryRecord={() => { setStep('categoryRecord'); vibrate(14); playNavigation(); }}
             onFood={() => { setStep('food'); vibrate(14); playNavigation(); }}
+            onClassics={() => { setStep('classics'); vibrate(14); playNavigation(); }}
             onFont={cycleFont} bigFont={fontIdx >= 2} onReset={clearAndReset}
             soundOn={soundOn} onToggleSound={toggleSound}
             ambientOn={ambientOn} onToggleAmbient={toggleAmbient}
@@ -563,6 +565,13 @@ export default function App() {
             nickname={nickname}
             birth={birth}
             onBack={() => { setStep('hub'); vibrate(10); }}
+          />
+        )}
+
+        {step === 'classics' && (
+          <ClassicsLibrary
+            birth={birth}
+            onBack={() => { setStep('hub'); vibrate(10); playBack(); }}
           />
         )}
 
@@ -961,7 +970,7 @@ function HubTile({ icon, label, color, onClick, index = 0 }) {
 }
 
 function Hub({ nickname, birth, oh, error, onPick, onEditBirth,
-  onCategoryKnow, onCategoryRelate, onCategoryRecord, onFood,
+  onCategoryKnow, onCategoryRelate, onCategoryRecord, onFood, onClassics,
   onFont, bigFont, onReset, soundOn, onToggleSound, ambientOn, onToggleAmbient, onShowTerms, onShowPrivacy }) {
   const [showSettings, setShowSettings] = useState(false);
   const line = dailyLine(parseInt(birth.y) || 0);
@@ -1027,6 +1036,7 @@ function Hub({ nickname, birth, oh, error, onPick, onEditBirth,
             sub:'오늘의 기운을 살펴보세요',
             onClick: () => onPick('fortune'), accent:true, done: todayDone },
           { key:'food', color:'#34d399', icon:<Utensils size={20}/>, label:'천문 식탁', sub:'오늘의 오행 밥상 추천', onClick: onFood },
+          { key:'classics', color:'#f0b429', icon:<BookOpen size={20}/>, label:'고전 서재', sub:'오늘 새길 고전 한 구절', onClick: onClassics },
           ...categories.map(c => ({ key:c.id, color:c.color, icon:c.icon, label:c.label, tags:c.tags, onClick:c.onClick })),
         ].map((c) => (
           <button key={c.key} onClick={() => { c.onClick(); vibrate(12); playNavigation(); }}
