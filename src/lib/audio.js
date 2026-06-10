@@ -26,7 +26,6 @@ function tone(ac, { freq, dur, peak, attack = 0.01, decay = null, type = 'sine',
   lp.type = 'lowpass'; lp.frequency.value = cutoff; lp.Q.value = 0.3;
   osc.type = type; osc.frequency.value = freq; osc.detune.value = detune;
   osc.connect(lp); lp.connect(gain); gain.connect(ac.destination);
-  const releaseStart = decay ?? (t + attack + dur * 0.85 - t);
   gain.gain.setValueAtTime(0.0001, t);
   gain.gain.exponentialRampToValueAtTime(peak, t + attack);
   gain.gain.setValueAtTime(peak, t + attack);

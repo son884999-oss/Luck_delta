@@ -5,7 +5,7 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { TrendingUp } from 'lucide-react';
 import {
-  OHAENG, getScoreInfo, getOhaeng, vibrate,
+  OHAENG, getScoreInfo, vibrate,
 } from '../lib/saju.js';
 import { playScoreReveal } from '../lib/audio.js';
 
@@ -294,7 +294,7 @@ export const ConfirmDialog = memo(({ open, title, message, confirmLabel = '확�
 });
 
 /* ── 점수 링 (원형 SVG) ────────────────────────────────────── */
-export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emojiOverride, descOverride }) => {
+export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emojiOverride }) => {
   const [displayed, setDisplayed] = useState(0);  // 카운트업 표시값
   const [ringFill, setRingFill] = useState(0);     // 링 채움 0→score
   const [revealed, setRevealed] = useState(false);
@@ -613,7 +613,6 @@ export const ScoreHistoryChart = memo(() => {
   const line = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
   const area = line + ` L${pts[pts.length - 1].x},${H - P + 8} L${pts[0].x},${H - P + 8} Z`;
   const wd = ['일','월','화','수','목','금','토'];
-  const lastPt = pts[pts.length - 1];
   return (
     <div className="glass rounded-2xl p-4 space-y-2.5">
       <div className="flex items-center justify-between">

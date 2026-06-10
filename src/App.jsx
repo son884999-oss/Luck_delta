@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import {
-  Fingerprint, Heart, Coins, Wand2, Trash2, RotateCcw, Eye, Shield, Pencil,
-  TrendingUp, ChevronDown, ChevronRight, Sparkles, X, Share2, Calendar, Star, Zap, Clock, Users, Home,
+  Fingerprint, Heart, Coins, Wand2, Trash2, Eye, Shield, Pencil,
+  TrendingUp, ChevronDown, ChevronRight, Sparkles, X, Calendar, Star, Zap, Clock, Users, Home,
   Crown, VolumeX, Volume2, GraduationCap, Utensils, Search, MapPin, Music,
 } from 'lucide-react';
 import {
@@ -42,14 +42,6 @@ import { savePdf, loadPdf, clearPdf, listSavedReports } from './lib/reportStore.
 
 /* 리포트 진행/완성 메타 — 앱을 껐다 켜도 복원하기 위해 localStorage에 보관.
    (PDF 원본 Blob은 용량이 커서 reportStore.js의 IndexedDB에 저장) */
-// 순환 참조가 섞여도 크래시 없이 직렬화(이미 방문한 객체는 생략) — 메일 바디 안전망
-function safeStringify(obj) {
-  const seen = new WeakSet();
-  return JSON.stringify(obj, (k, v) => {
-    if (v && typeof v === 'object') { if (seen.has(v)) return undefined; seen.add(v); }
-    return v;
-  });
-}
 const REPORT_META_KEY = 'cm_report_meta';
 const readReportMeta = () => { try { return JSON.parse(localStorage.getItem(REPORT_META_KEY) || 'null'); } catch (e) { return null; } };
 const writeReportMeta = (m) => { try { localStorage.setItem(REPORT_META_KEY, JSON.stringify(m)); } catch (e) {} };
@@ -63,7 +55,7 @@ import {
 import {
   Background, JEWELS, GlassCard, RevealCard, ScoreRing, BirthInput,
   OhaengSymbol, ScoreHistoryChart, PrimaryButton, ExpandableText, ConfirmDialog,
-  RitualReveal, ElementConstellation, Eyebrow, OrbitRings, GoldHairline,
+  ElementConstellation, Eyebrow, GoldHairline,
 } from './ui/celestial.jsx';
 import { ensureFoodUser, analyzeFood, analyzeFoodLocal } from './lib/foodApi.js';
 import { recommendTodayFood, openNearbyRestaurants } from './lib/foodReco.js';
@@ -87,7 +79,6 @@ const MODE_ICONS = {
   saju: <Star size={22}/>, gunghap: <Heart size={22}/>, tarot: <Wand2 size={22}/>,
   monthly: <Calendar size={22}/>, yearly: <TrendingUp size={22}/>, wealth: <Coins size={22}/>,
 };
-const TTI_EMOJI = { 쥐:'🐭', 소:'🐮', 호랑이:'🐯', 토끼:'🐰', 용:'🐲', 뱀:'🐍', 말:'🐴', 양:'🐑', 원숭이:'🐵', 닭:'🐔', 개:'🐶', 돼지:'🐷' };
 
 /* 인앱 정보 시트 (약관/개인정보처리방침) — alert() 대체 */
 function InfoSheet({ open, title, children, onClose }) {
@@ -198,8 +189,7 @@ export default function App() {
   /* ── 초기 로드 (birth/nickname/step 은 위에서 lazy 초기화됨) ── */
   useEffect(() => {
     pruneCache();
-    const savedFont = localStorage.getItem('cm_fs');
-    if (savedFont) setFontIdx(parseInt(savedFont));
+    // fontIdx는 useState lazy 초기화(cm_fs)에서 이미 복원됨 — 여기서 다시 set하지 않는다.
     setYesterday(getYesterdayScore());
 
     const today = todayKey();
@@ -966,9 +956,9 @@ function HubTile({ icon, label, color, onClick, index = 0 }) {
   );
 }
 
-function Hub({ nickname, birth, oh, streak, error, onPick, onEditBirth,
+function Hub({ nickname, birth, oh, error, onPick, onEditBirth,
   onCategoryKnow, onCategoryRelate, onCategoryRecord, onFood,
-  onFont, bigFont, onReset, soundOn, onToggleSound, ambientOn, onToggleAmbient, onShowTerms, onShowPrivacy, onToast }) {
+  onFont, bigFont, onReset, soundOn, onToggleSound, ambientOn, onToggleAmbient, onShowTerms, onShowPrivacy }) {
   const [showSettings, setShowSettings] = useState(false);
   const line = dailyLine(parseInt(birth.y) || 0);
   const tti = getTti(birth.y);
@@ -2452,7 +2442,6 @@ function colorNameToHex(name) {
   return null;
 }
 
-const LUCKY_ICONS = { rose:'🎨', amber:'🔢', emerald:'🍀', violet:'✨' };
 function LuckyBento({ r }) {
   const tiles = [
     { label:'행운의 색', value:r.luckyColor, jewel:'rose', swatch:colorNameToHex(r.luckyColor), icon:'🎨' },

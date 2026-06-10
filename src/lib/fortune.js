@@ -8,6 +8,7 @@ import {
 } from './saju.js';
 
 export const API_MODEL = 'gemini-3.5-flash';
+/* global process */ // Node(스크립트)에서도 import되는 모듈 — process는 typeof 가드로 안전하게 참조
 // 브라우저(Vite): VITE_GEMINI_API_KEY · Node(스크립트/함수): process.env
 const RAW_KEY =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) ||
@@ -187,11 +188,6 @@ export function buildPrompt(mode, data, data2, userName, extra) {
 }
 
 /* ── 캐시 키 ────────────────────────────────────────────────── */
-const seasonKey = () => {
-  const m = new Date().getMonth();
-  const s = m < 3 ? 'spring' : m < 6 ? 'summer' : m < 9 ? 'autumn' : 'winter';
-  return `season_${s}_${new Date().getFullYear()}`;
-};
 const weekKeyStr = () => {
   const d = new Date();
   const onejan = new Date(d.getFullYear(), 0, 1);
@@ -671,7 +667,7 @@ export async function generateStudyReport(birth, userName = '천문') {
 /* ================================================================
    점성술 AI 해석
 ================================================================ */
-export async function analyzeAstrology({ birth, userName = '천문', sunSign, sajuIlju }) {
+export async function analyzeAstrology({ userName = '천문', sunSign, sajuIlju }) {
   const system = `당신은 동서양 점성술과 명리학을 모두 아는 따뜻한 점성술사 '천문'입니다.${WARM}
 필드:
 - personality: 태양궁 ${sunSign.ko}의 핵심 성격 5~6문장.
@@ -691,7 +687,7 @@ export async function analyzeAstrology({ birth, userName = '천문', sunSign, sa
 /* ================================================================
    자미두수 AI 해석
 ================================================================ */
-export async function analyzeZiwei({ birth, userName = '천문', ziwei, sajuIlju }) {
+export async function analyzeZiwei({ userName = '천문', ziwei, sajuIlju }) {
   const palaceSummary = (ziwei.palaces || [])
     .filter(p => p.majorStars && p.majorStars.length > 0)
     .map(p => `${p.name}(${p.majorStars.map(s => s.name).join('·')})`)

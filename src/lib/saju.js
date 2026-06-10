@@ -132,7 +132,10 @@ export const transformScore = (raw) => 50 + Math.round(Math.max(1, Math.min(100,
 
 export const getJiji = (hour) => {
   const h = parseInt(hour);
-  return JIJI_MAP.find((_, idx) => idx === 0 ? (h >= 23 || h < 2) : (h >= 1 + idx * 2 && h < 3 + idx * 2));
+  if (isNaN(h)) return null;
+  // 시진 인덱스 — calculateSaju/fmtBirthTime와 동일 공식(자시 23~01, 축시 01~03 …)
+  const ji = (h >= 23 || h < 1) ? 0 : Math.floor((h + 1) / 2) % 12;
+  return JIJI_MAP[ji];
 };
 
 /* ================================================================
@@ -277,7 +280,7 @@ export function weeklyFortuneScore(birth, ref) {
   let sum = 0;
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday); d.setDate(monday.getDate() + i);
-    sum += dailyFortuneScore(birth, `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`); // eslint-disable-line
+    sum += dailyFortuneScore(birth, `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`);
   }
   return Math.round(sum / 7);
 }

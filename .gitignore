@@ -25,6 +25,13 @@ dist-ssr
 # 보안 설정 추가
 .env
 .env.*
+!.env.example
+
+# Claude Code 런타임 잠금 파일(세션마다 변경 — 추적 불필요)
+.claude/scheduled_tasks.lock
+
+# 생성된 리포트 산출물(천문_..._이름.pdf · 루트에 떨어지는 출력물)
+천문_*.pdf
 
 # 개발용 스크린샷/리포트 산출물 (gen-report.mjs · preview-*.mjs 등)
 rr_*.png
