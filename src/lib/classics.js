@@ -6,21 +6,23 @@
 ================================================================ */
 import { todayKey } from './saju.js';
 
-// 카테고리 — c 키와 1:1
+// 카테고리 — c 키와 1:1 (color: 카테고리별 인장 색 테마 — '다른 방' 느낌)
 export const CLASSIC_CATEGORIES = [
-  { key: 'myungsim', label: '명심보감' },
-  { key: 'noneo',    label: '논어' },
-  { key: 'maengja',  label: '맹자' },
-  { key: 'daehak',   label: '대학·중용' },
-  { key: 'juyeok',   label: '주역' },
-  { key: 'dodeok',   label: '도덕경' },
-  { key: 'jangja',   label: '장자' },
-  { key: 'bulgyo',   label: '불교' },
-  { key: 'gosa',     label: '고사성어' },
-  { key: 'sonja',    label: '손자병법' },
-  { key: 'sigyeong', label: '시경' },
-  { key: 'myeongmun',label: '명문·잠언' },
+  { key: 'myungsim', label: '명심보감',   color: '#e7b94f' },
+  { key: 'noneo',    label: '논어',       color: '#4fc3b0' },
+  { key: 'maengja',  label: '맹자',       color: '#d99a6c' },
+  { key: 'daehak',   label: '대학·중용',  color: '#b39cf8' },
+  { key: 'juyeok',   label: '주역',       color: '#7c9cf0' },
+  { key: 'dodeok',   label: '도덕경',     color: '#5bb8d4' },
+  { key: 'jangja',   label: '장자',       color: '#74c49a' },
+  { key: 'bulgyo',   label: '불교',       color: '#c4a6f5' },
+  { key: 'gosa',     label: '고사성어',   color: '#e8a94e' },
+  { key: 'sonja',    label: '손자병법',   color: '#e08a7a' },
+  { key: 'sigyeong', label: '시경',       color: '#e89ab5' },
+  { key: 'myeongmun',label: '명문·잠언',  color: '#d4b878' },
 ];
+export const classicCatColor = (key) =>
+  (CLASSIC_CATEGORIES.find(c => c.key === key) || {}).color || '#e7b94f';
 
 // 명구 — { c:카테고리, h:한자, e:한글 음, m:쉬운 뜻, s:출처 }
 export const CLASSICS = [
