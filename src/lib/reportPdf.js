@@ -444,6 +444,16 @@ function renderReport(d, theme, cfg) {
   .ending .efoot { font-size:8.5pt; letter-spacing:0.38em; color:${p.dim}; }
   /* 엔딩 서명선 */
   .ending .esign { margin-top:36pt; padding-top:18pt; border-top:1px solid ${hexA(PRI,0.22)}; font-size:9pt; color:${p.dim}; letter-spacing:0.22em; }
+  /* ── 엔딩 '오늘 새길 한 구절' — 동양 고전 명구(금빛 인장 블록) ── */
+  .classic { margin:26pt auto 6pt; max-width:148mm; padding:20pt 24pt; border-radius:18px;
+    background:linear-gradient(160deg, ${hexA(GOLD,0.14)} 0%, ${hexA(GOLD,0.03)} 100%);
+    border:1px solid ${hexA(GOLD,0.36)}; box-shadow:0 8px 30px ${hexA(GOLD,0.15)}, inset 0 0 0 1px ${hexA(GOLD,0.10)}; }
+  .classic-k { font-size:9pt; font-weight:700; letter-spacing:0.28em; color:${GOLD}; margin-bottom:14pt; }
+  .classic-hanja { font-size:36pt; font-weight:900; letter-spacing:0.2em; color:${GOLD}; line-height:1.18; text-shadow:0 2px 14px ${hexA(GOLD,0.28)}; }
+  .classic-eum { font-size:11pt; font-weight:600; letter-spacing:0.34em; color:${hexA(p.ink,0.72)}; margin-top:8pt; }
+  .classic-meaning { font-size:14.5pt; font-weight:500; font-style:italic; color:${p.ink}; margin-top:14pt; line-height:1.7; }
+  .classic-why { font-size:11pt; color:${p.body}; margin-top:11pt; line-height:1.65; }
+  .classic-source { font-size:9.5pt; font-weight:700; letter-spacing:0.06em; color:${hexA(GOLD,0.92)}; margin-top:11pt; }
 </style></head>
 <body>
 
@@ -520,6 +530,15 @@ function renderReport(d, theme, cfg) {
       <text x="75" y="84" text-anchor="middle" font-size="22" fill="${PRI}">✦</text>
     </svg>
     <div class="logo serif">天 文</div>
+    ${d.classic && d.classic.hanja ? `
+    <div class="classic">
+      <div class="classic-k">✦ 오늘 새길 한 구절 ✦</div>
+      <div class="classic-hanja serif">${esc(d.classic.hanja)}</div>
+      ${d.classic.eum ? `<div class="classic-eum">${esc(d.classic.eum)}</div>` : ''}
+      <div class="classic-meaning serif">“${esc(refine(d.classic.meaning || ''))}”</div>
+      ${d.classic.why ? `<div class="classic-why">${esc(refine(d.classic.why))}</div>` : ''}
+      ${d.classic.source ? `<div class="classic-source">— ${esc(d.classic.source)}</div>` : ''}
+    </div>` : ''}
     <div class="eline serif">“${esc(refine(cfg.closing))}”</div>
     <div class="eorn">${ornDivider(180)}</div>
     <div class="efoot">${esc(cfg.foot)}</div>

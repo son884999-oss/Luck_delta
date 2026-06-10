@@ -2002,6 +2002,7 @@ function ResultPage({ m, page, r, birth, oh, yesterday, ritualStep, cfg, onGungh
         ]}/>}
         <LuckyBento r={r}/>
         <QuoteBlock text={r.quote}/>
+        <ClassicBlock classic={r.classic}/>
         {r.basisSummary && <BasisBlock text={r.basisSummary}/>}
       </div>
     );
@@ -2497,6 +2498,24 @@ function QuoteBlock({ text }) {
       <span className="serif text-[32px] leading-none block" style={{ color:'rgba(167,139,250,0.35)', marginTop:-8 }}>"</span>
       {/* 하단 선 */}
       <div className="w-16 h-px mx-auto mt-4" style={{ background:'linear-gradient(to right, transparent, rgba(167,139,250,0.4), transparent)' }}/>
+    </div>
+  );
+}
+
+/* 오늘 새길 한 구절 — 동양 고전 명구(사자성어·고사성어·불교구절·사서삼경 중 하나) */
+function ClassicBlock({ classic }) {
+  if (!classic || !classic.hanja) return null;
+  return (
+    <div className="rounded-2xl px-5 py-6 text-center relative overflow-hidden"
+      style={{ background:'linear-gradient(160deg, rgba(240,180,41,0.10), rgba(240,180,41,0.02))',
+        border:'1px solid rgba(240,180,41,0.28)', boxShadow:'0 8px 30px rgba(240,180,41,0.10)' }}>
+      {/* 금빛 후광 */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse 70% 60% at 50% 35%, rgba(240,180,41,0.12), transparent 70%)' }}/>
+      <p className="relative text-[10.5px] font-bold tracking-[0.26em] mb-3" style={{ color:'rgba(240,180,41,0.85)' }}>✦ 오늘 새길 한 구절 ✦</p>
+      <p className="relative serif font-black leading-tight" style={{ fontSize:34, letterSpacing:'0.12em', color:'#f0b429', textShadow:'0 2px 16px rgba(240,180,41,0.35)' }}>{classic.hanja}</p>
+      {classic.eum && <p className="relative text-[12px] font-semibold tracking-[0.3em] mt-2" style={{ color:'rgba(255,255,255,0.62)' }}>{classic.eum}</p>}
+      {classic.meaning && <p className="relative serif text-[15px] italic mt-3.5 px-2" style={{ color:'var(--ink)', lineHeight:1.7 }}>&ldquo;{classic.meaning}&rdquo;</p>}
+      {classic.source && <p className="relative text-[11px] font-bold tracking-wide mt-3" style={{ color:'rgba(240,180,41,0.8)' }}>— {classic.source}</p>}
     </div>
   );
 }
