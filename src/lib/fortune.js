@@ -7,7 +7,7 @@ import {
   calculateSaju, sajuSummaryLine, dailyFortuneScore, weeklyFortuneScore,
 } from './saju.js';
 
-export const API_MODEL = 'gemini-3.1-flash-lite';
+export const API_MODEL = 'gemini-3.5-flash';
 // 브라우저(Vite): VITE_GEMINI_API_KEY · Node(스크립트/함수): process.env
 const RAW_KEY =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) ||
