@@ -776,6 +776,10 @@ function Entrance({ onEnter }) {
 
       {/* 중앙 아이콘 그룹 */}
       <div className={`relative mb-10 transition-all duration-300 ${touched ? 'scale-110 opacity-70' : 'animate-float'}`}>
+        {/* 회전하는 보석빛 오로라 후광 — 장엄한 첫인상 */}
+        <div className="absolute inset-0 rounded-full scale-[3.6] pointer-events-none" style={{
+          background:'conic-gradient(from 0deg, transparent, rgba(231,185,79,0.20), transparent 38%, rgba(167,139,250,0.20), transparent 68%, rgba(56,189,248,0.15), transparent)',
+          filter:'blur(22px)', animation:'halo-spin 26s linear infinite' }}/>
         <div className="absolute inset-0 rounded-full scale-[3]"
           style={{ background:'radial-gradient(circle, rgba(129,140,248,0.25), transparent 68%)', animation:'glow-pulse 3.5s ease-in-out infinite' }}/>
         <div className="absolute inset-0 rounded-full scale-[2]"
@@ -784,7 +788,7 @@ function Entrance({ onEnter }) {
       </div>
 
       <h1 className="serif font-black tracking-[0.32em] leading-none animate-fade-up"
-        style={{ fontSize:'clamp(3.2rem,13vw,4.6rem)', color:'#fff', textShadow:'0 0 80px rgba(167,139,250,0.5), 0 0 40px rgba(129,140,248,0.3)' }}>
+        style={{ fontSize:'clamp(3.2rem,13vw,4.6rem)', color:'#fff', textShadow:'0 0 80px rgba(167,139,250,0.5), 0 0 40px rgba(129,140,248,0.3), 0 0 26px rgba(231,185,79,0.28)' }}>
         천문
       </h1>
       <p className="mt-4 animate-fade-up flex items-center gap-2" style={{ animationDelay:'0.2s' }}>

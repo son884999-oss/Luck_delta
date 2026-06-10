@@ -143,23 +143,25 @@ input::placeholder, textarea::placeholder {
    글자색은 루트의 밝은 --ink* 값을 그대로 상속(밝은 글자 on 다크 카드). */
 .glass {
   background: rgba(16, 14, 34, 0.60);
-  border: 1px solid rgba(167,139,250,0.18);
-  /* 상단 하이라이트 라인 — 유리 질감의 핵심 */
-  box-shadow: 0 4px 24px rgba(0,0,0,0.35),
-              0 1px 0 rgba(255,255,255,0.07) inset,
-              0 -1px 0 rgba(0,0,0,0.2) inset;
-  backdrop-filter: blur(12px) saturate(1.1);
-  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  border: 1px solid rgba(167,139,250,0.20);
+  /* 상단 하이라이트 라인 + 미세 보석빛 외곽 — 유리 질감의 핵심 */
+  box-shadow: 0 6px 28px rgba(0,0,0,0.38),
+              0 0 0 1px rgba(167,139,250,0.05),
+              0 1px 0 rgba(255,255,255,0.10) inset,
+              0 -1px 0 rgba(0,0,0,0.22) inset;
+  backdrop-filter: blur(13px) saturate(1.18);
+  -webkit-backdrop-filter: blur(13px) saturate(1.18);
   --pick-fade: #100e22;
 }
 .glass-strong {
   background: rgba(22, 18, 46, 0.80);
-  border: 1px solid rgba(167,139,250,0.24);
-  box-shadow: 0 14px 48px rgba(0,0,0,0.50),
-              0 1px 0 rgba(255,255,255,0.08) inset,
-              0 -1px 0 rgba(0,0,0,0.25) inset;
-  backdrop-filter: blur(14px) saturate(1.12);
-  -webkit-backdrop-filter: blur(14px) saturate(1.12);
+  border: 1px solid rgba(167,139,250,0.26);
+  box-shadow: 0 16px 52px rgba(0,0,0,0.52),
+              0 0 0 1px rgba(167,139,250,0.07),
+              0 1px 0 rgba(255,255,255,0.11) inset,
+              0 -1px 0 rgba(0,0,0,0.27) inset;
+  backdrop-filter: blur(15px) saturate(1.2);
+  -webkit-backdrop-filter: blur(15px) saturate(1.2);
   --pick-fade: #16142e;
 }
 .hairline { border-bottom: 1px solid rgba(255,255,255,0.08); }
@@ -464,6 +466,84 @@ input::placeholder, textarea::placeholder {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* ================================================================
+   ✦ LUXE — 더 화려한 프리미엄 비주얼 (2026 디자인 강화)
+   전역 유틸 + 배경 효과. 가독성·접근성(40+) 유지하며 '고급스러운 빛'만 더한다.
+================================================================ */
+
+/* CSS 각도 변수 — 홀로그래픽 보더 회전용(지원 안되면 정적 conic으로 우아하게 폴백) */
+@property --holo-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes holo-rotate { to { --holo-angle: 360deg; } }
+
+/* 홀로그래픽 회전 테두리 — 프리미엄 카드/버튼에 무지갯빛 광택 1.5px 라인 */
+.holo-border { position: relative; }
+.holo-border::before {
+  content:''; position:absolute; inset:0; border-radius: inherit; padding:1.5px;
+  background: conic-gradient(from var(--holo-angle),
+    #e7b94f, #a78bfa, #38bdf8, #34d399, #fb7185, #e7b94f);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: holo-rotate 7s linear infinite;
+  opacity: .9; pointer-events: none; will-change: --holo-angle;
+}
+
+/* 회전하는 오로라 헤일로 — 히어로/프리미엄 요소 뒤 장엄한 깊이감(은은하게) */
+@keyframes halo-spin { to { transform: rotate(360deg); } }
+.aurora-halo {
+  position: absolute; inset: -45%; z-index: 0; pointer-events: none; border-radius: 50%;
+  background: conic-gradient(from 0deg,
+    rgba(167,139,250,0), rgba(167,139,250,0.16),
+    rgba(56,189,248,0),  rgba(231,185,79,0.15),
+    rgba(251,113,133,0), rgba(52,211,153,0.12),
+    rgba(167,139,250,0));
+  filter: blur(48px);
+  animation: halo-spin 44s linear infinite;
+  will-change: transform;
+}
+
+/* 금빛 시머 텍스트 — 프리미엄 제목(아껴서 핵심 한두 곳에만) */
+.text-gold-shimmer {
+  background: linear-gradient(100deg, #c9a24b 0%, #f4d98a 24%, #fff7e0 46%, #f4d98a 66%, #c9a24b 100%);
+  background-size: 220% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: shimmer 6.5s linear infinite;
+  filter: drop-shadow(0 1px 6px rgba(231,185,79,0.25));
+}
+
+/* 별가루 — 배경에서 천천히 떠오르는 금빛 입자 */
+@keyframes stardust-rise {
+  0%   { opacity: 0; transform: translateY(0) scale(.5); }
+  18%  { opacity: .85; }
+  100% { opacity: 0; transform: translateY(-130px) scale(1.15); }
+}
+.stardust { animation: stardust-rise linear infinite; will-change: transform, opacity; }
+
+/* glass 위 은은한 대각선 광택 — 유리 질감 강화(가독성 영향 없는 4% 흰빛) */
+.glass-luxe { position: relative; overflow: hidden; }
+.glass-luxe::before {
+  content:''; position:absolute; inset:0; pointer-events:none; border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 36%);
+}
+
+/* 프리미엄 카드 등장 시 빛이 한 번 천천히 스침(과하지 않게) */
+@keyframes luxe-sweep { 0% { transform: translateX(-150%) skewX(-16deg); } 60%,100% { transform: translateX(260%) skewX(-16deg); } }
+.luxe-sheen { position: relative; overflow: hidden; }
+.luxe-sheen::after {
+  content:''; position:absolute; top:0; left:0; width:40%; height:100%; z-index:3; pointer-events:none;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+  transform: translateX(-150%) skewX(-16deg);
+  animation: luxe-sweep 7s ease-in-out 1s infinite;
+}
+
+/* 펄싱 금빛 후광 — 핵심 점수/심볼 주변 신성한 빛 */
+@keyframes sacred-glow {
+  0%,100% { box-shadow: 0 0 24px 2px rgba(231,185,79,0.18), 0 0 0 1px rgba(231,185,79,0.10) inset; }
+  50%     { box-shadow: 0 0 44px 6px rgba(231,185,79,0.34), 0 0 0 1px rgba(231,185,79,0.18) inset; }
+}
+.sacred-glow { animation: sacred-glow 3.4s ease-in-out infinite; }
 
 /* ================================================================
    인쇄/PDF 스타일 — 천문 리포트 (Task 4: 미적 향상)

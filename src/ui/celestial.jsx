@@ -21,13 +21,20 @@ export const JEWELS = {
 
 /* ── 셀레스철 배경: 오로라 + 별 ────────────────────────────── */
 // 별은 장식용이라 모듈 로드 시 한 번만 생성 (렌더마다 난수 재계산 방지)
-const STARS = [...Array(46)].map((_, i) => ({
+const STARS = [...Array(68)].map((_, i) => ({
   x: Math.random() * 100, y: Math.random() * 100,
   size: Math.random() * 2.0 + 0.3,
   opacity: Math.random() * 0.45 + 0.05,
   delay: Math.random() * 10, dur: 3 + Math.random() * 7,
   // 일부는 십자 빛살 효과 (큰 별)
-  cross: i < 5,
+  cross: i < 6,
+}));
+// 금빛 별가루 — 화면 아래에서 아주 천천히 떠오르는 입자(고급스러운 미세 움직임)
+const STARDUST = [...Array(9)].map((_, i) => ({
+  x: 6 + Math.random() * 88, y: 58 + Math.random() * 40,
+  size: 1.2 + Math.random() * 1.8,
+  c: ['#e7b94f', '#f4d98a', '#a78bfa', '#fde68a'][i % 4],
+  dur: 9 + Math.random() * 8, delay: Math.random() * 10,
 }));
 // 보석빛 글로우 별 — 깊이감을 더하는 소수의 큰 별 (골드·바이올렛·스카이 틴트)
 const GLOW_STARS = [
@@ -49,6 +56,8 @@ export const Background = memo(({ ohaengColor = null }) => {
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
       <div className="absolute inset-0" style={{ background:
         'radial-gradient(120% 80% at 50% -10%, #0e1a38 0%, transparent 55%), radial-gradient(100% 70% at 90% 110%, #0a1430 0%, transparent 50%)' }}/>
+      {/* 회전하는 오로라 헤일로 — 우주 한가운데 떠 있는 듯한 장엄한 빛(은은하게) */}
+      <div className="aurora-halo" style={{ top:'8%', left:'0%', opacity:0.7 }}/>
       {/* 오행색 오로라 — 본인 오행에 맞춰 배경이 미묘하게 달라진다 */}
       {tint && (
         <div className="absolute rounded-full" style={{
@@ -70,6 +79,15 @@ export const Background = memo(({ ohaengColor = null }) => {
         top:'40%', left:'46%', width:'48%', height:'48%',
         background:'radial-gradient(circle, rgba(231,185,79,0.11), transparent 70%)',
         filter:'blur(74px)', animation:'aurora-drift 32s ease-in-out infinite' }}/>
+      {/* 컬러 오로라 한 겹 더 — 에메랄드·로즈 미세 틴트로 깊이와 화사함 */}
+      <div className="absolute rounded-full" style={{
+        top:'8%', right:'-6%', width:'42%', height:'42%',
+        background:'radial-gradient(circle, rgba(52,211,153,0.10), transparent 70%)',
+        filter:'blur(72px)', animation:'aurora-drift 26s ease-in-out infinite reverse' }}/>
+      <div className="absolute rounded-full" style={{
+        bottom:'6%', left:'4%', width:'40%', height:'40%',
+        background:'radial-gradient(circle, rgba(251,113,133,0.08), transparent 70%)',
+        filter:'blur(78px)', animation:'aurora-drift 30s ease-in-out infinite' }}/>
       {stars.map((s, i) => (
         s.cross ? (
           <div key={i} className="absolute" style={{
@@ -102,6 +120,13 @@ export const Background = memo(({ ohaengColor = null }) => {
           background:s.c, boxShadow:`0 0 ${s.size * 3}px ${s.size}px ${s.c}`,
           animation:`star-pulse ${s.dur}s ease-in-out infinite`, animationDelay:`${s.delay}s` }}/>
       ))}
+      {/* 금빛 별가루 — 천천히 떠오르며 사라지는 입자 */}
+      {STARDUST.map((s, i) => (
+        <div key={`d${i}`} className="stardust absolute rounded-full" style={{
+          left:`${s.x}%`, top:`${s.y}%`, width:`${s.size}px`, height:`${s.size}px`,
+          background:s.c, boxShadow:`0 0 ${s.size * 4}px ${s.size}px ${s.c}`,
+          animationDuration:`${s.dur}s`, animationDelay:`${s.delay}s` }}/>
+      ))}
       {/* 유성 — 가는 빛줄기 */}
       {SHOOTING.map((s, i) => (
         <div key={`s${i}`} className="absolute" style={{
@@ -132,7 +157,7 @@ export const Background = memo(({ ohaengColor = null }) => {
         </svg>
       </div>
       {/* 성운 SVG — 절차적 생성, CC0 (순수 코드). 아주 느린 패럴랙스 드리프트 */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" style={{ opacity:0.19 }}>
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" style={{ opacity:0.23 }}>
         <defs>
           <radialGradient id="neb1" cx="25%" cy="20%" r="35%">
             <stop offset="0%" stopColor="#6366f1" stopOpacity="0.6"/>
@@ -348,6 +373,11 @@ export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emo
         {/* 공개 후 오행색 외곽 글로우 */}
         <div className="absolute inset-[-22px] rounded-full transition-all duration-1000"
           style={{ boxShadow:`0 0 ${revealed?'130px':'0px'} ${accent}${revealed?'50':'00'}`, opacity:revealed ? 1 : 0 }}/>
+        {/* 회전하는 보석빛 후광 — 점수 공개의 정점을 화려하게 */}
+        <div className="absolute inset-[-6px] rounded-full pointer-events-none" style={{
+          background:`conic-gradient(from 0deg, transparent, ${accent}66, transparent 38%, #a78bfa55, transparent 68%, ${accent}66, transparent)`,
+          filter:'blur(13px)', opacity: revealed ? 0.7 : 0,
+          animation:'halo-spin 14s linear infinite', transition:'opacity 1.1s ease' }}/>
 
         <svg viewBox="0 0 230 230" style={{ display:'block', width:'100%', height:'100%' }} className="-rotate-90">
           {/* 배경 링 */}
@@ -848,8 +878,8 @@ export const PrimaryButton = ({ children, onClick, jewel = 'indigo', className =
     <button onClick={onClick} disabled={disabled}
       className={`w-full flex items-center justify-center gap-2.5 rounded-2xl font-bold text-[16px] transition-all active:scale-[0.97] ${disabled ? '' : 'btn-shine'} ${className}`}
       style={{ minHeight:60, color:'#fff',
-        background: disabled ? 'rgba(255,255,255,0.05)' : `linear-gradient(135deg, ${j.main} 0%, #a78bfa 110%)`,
-        boxShadow: disabled ? 'none' : `0 12px 36px ${j.glow}, 0 2px 8px rgba(0,0,0,0.25)`,
+        background: disabled ? 'rgba(255,255,255,0.05)' : `linear-gradient(135deg, ${j.main} 0%, #a78bfa 58%, #818cf8 115%)`,
+        boxShadow: disabled ? 'none' : `0 12px 36px ${j.glow}, 0 2px 8px rgba(0,0,0,0.25), 0 1px 0 rgba(255,255,255,0.22) inset`,
         opacity: disabled ? 0.45 : 1,
         letterSpacing: '-0.01em' }}>
       {icon && <span className="flex-shrink-0">{icon}</span>}
