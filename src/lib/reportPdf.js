@@ -64,6 +64,19 @@ function renderReport(d, theme, cfg) {
       : paras(a.text, true);
     return textSec(no, title, `${quote(a.highlight, accent)}${body}`, accent, glyph);
   };
+  // 인생 흐름·시간대 타임라인 행(시그니처/학습 공용 — builders로 주입)
+  const phase = (label, sub, text) => `
+    <div class="tl-row">
+      <div class="tl-axis"><span class="tl-node"></span></div>
+      <div class="tl-body"><div class="tl-label serif">${esc(label)} <span class="tl-sub">${esc(sub)}</span></div>${paras(text)}</div>
+    </div>`;
+  // 카드 리스트(향후 5년 / 시험 단계별 공용)
+  const cards = (items) => items.map(it => `
+    <div class="ycard">
+      <div class="yhead"><span class="yy serif">${esc(it.label)}</span>${it.kw ? `<span class="ykw">${esc(it.kw)}</span>` : ''}</div>
+      <p class="body">${esc(refine(it.text))}</p>
+    </div>`).join('');
+
   /* ── 명식 (두 리포트 공유) ── */
   const kindMap = { 년주: '태어난 해', 월주: '태어난 달', 일주: '태어난 날', 시주: '태어난 시' };
   const pillarCard = (pl) => {
