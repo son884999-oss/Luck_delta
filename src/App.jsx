@@ -58,7 +58,7 @@ import {
   ElementConstellation, Eyebrow, GoldHairline,
 } from './ui/celestial.jsx';
 import { ensureFoodUser, analyzeFood, analyzeFoodLocal } from './lib/foodApi.js';
-import { recommendTodayFood, openNearbyRestaurants } from './lib/foodReco.js';
+import { recommendTodayFood, openNearbyRestaurants, pickFoodEmoji } from './lib/foodReco.js';
 import { hasPlacesKey, searchRestaurantsByDishes } from './lib/places.js';
 import { hasKakaoJsKey, loadKakaoMaps } from './lib/kakaoMap.js';
 import { BackBar, ErrorBox } from './ui/bits.jsx';
@@ -2853,7 +2853,6 @@ function FoodTable({ nickname, birth, onBack }) {
   const [places, setPlaces] = useState(null);    // 카카오 주변 식당(오행 매칭)
   const [placesLoading, setPlacesLoading] = useState(false);
   const [placesErr, setPlacesErr] = useState('');
-  const [foodImg, setFoodImg] = useState(null);  // 메뉴 대표 사진(큐레이션 URL, 프리로드 성공 시 표시)
 
   // 내 기운(오행 분포) — '오늘의 기운' 진단 비주얼/문구의 근거
   const saju = useMemo(() => { try { return calculateSaju(birth); } catch (e) { return null; } }, [birth]);
@@ -2934,63 +2933,34 @@ function FoodTable({ nickname, birth, onBack }) {
   const cat = shown ? (FOOD_CAT[shown.category] || FOOD_CAT.C_GENERAL) : null;
   const danger = shown?.category === 'D_PSEUDO';
 
-  // 메뉴 사진 — 메뉴에 박아둔 큐레이션 이미지(위키미디어)를 프리로드 성공 시에만 표시(깨지면 이모지).
+  // 메뉴가 바뀌면 이전 주변 식당 결과는 비운다(사진 연동 → 이모지 연동으로 전환)
   useEffect(() => {
-    const url = shown?.img;
-    setFoodImg(null);
-    setPlaces(null); setPlacesErr('');   // 메뉴가 바뀌면 이전 주변 식당 결과는 비운다
-    if (!url) return;
-    let alive = true;
-    const im = new Image();
-    im.referrerPolicy = 'no-referrer';
-    im.onload = () => { if (alive && im.naturalWidth >= 100) setFoodImg(url); };
-    im.src = url;
-    return () => { alive = false; };
+    setPlaces(null); setPlacesErr('');
   }, [shown?.foodName]);
 
+  // 음식별 대표 이모지 — 추천 데이터(emoji)를 우선, 없으면 이름 키워드로 폴백(결정적·매번 동일)
+  const foodEmoji = shown ? (shown.emoji || pickFoodEmoji(shown.foodName)) : '🍽️';
 
-  // 음식별 대표 이모지 — 운세·오행 느낌 대신 식탁 느낌
-  const FOOD_EMOJI = { 국물:['🍲','🥘'], 밥:['🍚','🥗'], 나물:['🥬','🫘'], 두부:['🫕','🥢'],
-    고기:['🍖','🥩'], 생선:['🐟','🍣'], 죽:['🫙','🥣'], 빵:['🍞','🥐'], 차:['🍵','☕'],
-    default:['🍽️','🫙'] };
-  const foodEmoji = (() => {
-    const name = shown?.foodName || '';
-    for (const [key, arr] of Object.entries(FOOD_EMOJI)) {
-      if (key !== 'default' && name.includes(key)) return arr[Math.floor(Math.random()*arr.length)];
-    }
-    return FOOD_EMOJI.default[0];
-  })();
-
-  // 공개될 카드 — 따뜻한 식탁 분위기, 궤도 링 완전 제거
+  // 공개될 카드 — 사진 대신 큼직한 이모지 + 금빛 후광으로 따뜻한 식탁 분위기
   const foodCard = shown && (
-    <div className="w-full h-full rounded-[24px] overflow-hidden relative flex flex-col"
-      style={{ background: `linear-gradient(160deg, #1a120a 0%, #120d07 60%, #0e0b08 100%)`,
-        border: `1px solid ${danger ? 'rgba(251,113,133,0.4)' : 'rgba(240,180,41,0.25)'}` }}>
-      {foodImg ? (
-        /* 메뉴 대표 사진 — 카드 전체 hero */
-        <img src={foodImg} alt={shown.foodName} draggable={false} referrerPolicy="no-referrer"
-          className="absolute inset-0 w-full h-full object-cover animate-fade-up"
-          onError={() => setFoodImg(null)}/>
-      ) : (
-        <>
-          {/* 따뜻한 빛 — 수증기처럼 퍼지는 중앙 글로우 */}
-          <div className="absolute inset-0 pointer-events-none" style={{
-            background:`radial-gradient(ellipse 70% 55% at 50% 45%, rgba(240,180,41,0.18) 0%, transparent 70%)`}}/>
-          {/* 식재료 결 텍스처 — 가로 얇은 줄 */}
-          {[20,35,52,68,83].map(y => (
-            <div key={y} className="absolute left-0 right-0 pointer-events-none"
-              style={{ top:`${y}%`, height:1, background:'rgba(240,180,41,0.04)' }}/>
-          ))}
-        </>
-      )}
-      {/* 텍스트 가독성 그라데이션 — 사진이 있을 때 하단을 어둡게 */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: foodImg
-        ? 'linear-gradient(to top, rgba(8,6,4,0.95) 6%, rgba(8,6,4,0.6) 36%, rgba(8,6,4,0.12) 64%, transparent 100%)'
-        : 'transparent' }}/>
-      {/* 콘텐츠 — 사진이면 하단 정렬, 없으면 중앙(이모지 포함) */}
-      <div className={`relative z-10 flex flex-col items-center text-center px-6 w-full ${foodImg ? 'mt-auto pb-6' : 'my-auto'}`}>
-        {!foodImg && <span className="text-[52px] mb-2" style={{ filter:'drop-shadow(0 4px 12px rgba(240,180,41,0.3))' }}>{foodEmoji}</span>}
-        <p className="serif text-[26px] font-black leading-tight break-keep" style={{ color:'#fff5e4', textShadow: foodImg ? '0 2px 14px rgba(0,0,0,0.85)' : 'none' }}>{shown.foodName}</p>
+    <div className="w-full h-full rounded-[24px] overflow-hidden relative flex flex-col items-center justify-center text-center px-6"
+      style={{ background: `linear-gradient(160deg, #20140a 0%, #140d07 55%, #0e0b08 100%)`,
+        border: `1px solid ${danger ? 'rgba(251,113,133,0.4)' : 'rgba(240,180,41,0.28)'}` }}>
+      {/* 따뜻한 빛 — 수증기처럼 퍼지는 중앙 글로우 */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background:`radial-gradient(ellipse 72% 56% at 50% 42%, rgba(240,180,41,0.20) 0%, transparent 70%)`}}/>
+      {/* 회전하는 금빛 후광 — 이모지 뒤 화려한 빛 */}
+      <div className="absolute pointer-events-none" style={{ width:'80%', aspectRatio:'1/1', borderRadius:'50%',
+        background:'conic-gradient(from 0deg, transparent, rgba(240,180,41,0.18), transparent 40%, rgba(255,221,148,0.13), transparent 70%, rgba(240,180,41,0.18), transparent)',
+        animation:'halo-spin 18s linear infinite' }}/>
+      {/* 식재료 결 텍스처 — 가로 얇은 줄 */}
+      {[20,35,52,68,83].map(y => (
+        <div key={y} className="absolute left-0 right-0 pointer-events-none"
+          style={{ top:`${y}%`, height:1, background:'rgba(240,180,41,0.04)' }}/>
+      ))}
+      <div className="relative z-10 flex flex-col items-center">
+        <span className="mb-3" style={{ fontSize:76, filter:'drop-shadow(0 6px 20px rgba(240,180,41,0.45))', animation:'float-y 3.4s ease-in-out infinite' }}>{foodEmoji}</span>
+        <p className="serif text-[27px] font-black leading-tight break-keep" style={{ color:'#fff5e4' }}>{shown.foodName}</p>
         {/* 성질 태그 */}
         {shown.nature && (
           <span className="mt-2.5 text-[12px] font-medium px-3 py-1 rounded-full"
@@ -3000,7 +2970,7 @@ function FoodTable({ nickname, birth, onBack }) {
         )}
         {/* 적합도 */}
         <div className="mt-2.5 flex items-baseline gap-1">
-          <span className="serif text-[28px] font-black tabular-nums" style={{ color: danger ? '#fb7185' : 'rgba(240,180,41,0.98)', textShadow: foodImg ? '0 2px 10px rgba(0,0,0,0.85)' : 'none' }}>{shown.suitabilityScore}%</span>
+          <span className="serif text-[28px] font-black tabular-nums" style={{ color: danger ? '#fb7185' : 'rgba(240,180,41,0.98)' }}>{shown.suitabilityScore}%</span>
           <span className="text-[11px]" style={{ color:'rgba(255,255,255,0.6)' }}>기운 적합</span>
         </div>
       </div>
@@ -3070,6 +3040,14 @@ function FoodTable({ nickname, birth, onBack }) {
               border:`1px solid rgba(240,180,41,0.18)`,
               boxShadow:'0 8px 32px rgba(0,0,0,0.4)' }}>
               {!isReco && <div className="mb-2.5"><Eyebrow color={cat.color}>{cat.icon} {cat.label}</Eyebrow></div>}
+              {/* 사주 연결 풀이 — 왜 이 메뉴인지(부족한 오행 보강) */}
+              {shown.focusReason && (
+                <div className="mb-3 flex items-start gap-2.5 rounded-xl px-3.5 py-2.5"
+                  style={{ background:'rgba(240,180,41,0.10)', border:'1px solid rgba(240,180,41,0.26)' }}>
+                  <span className="text-[14px] flex-shrink-0">🧭</span>
+                  <p className="text-[12.5px] font-semibold" style={{ color:'rgba(240,180,41,0.96)', lineHeight:1.55 }}>{shown.focusReason}</p>
+                </div>
+              )}
               {shown.summary && <p className="serif text-[14.5px]" style={{ color:'rgba(255,245,228,0.9)', lineHeight:1.7 }}>{shown.summary}</p>}
               {(shown.nutrition || shown.tip) && (
                 <div className="mt-4 space-y-2">

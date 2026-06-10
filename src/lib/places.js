@@ -19,18 +19,3 @@ export async function searchRestaurantsByDishes(dishes, { lat, lng, radius = 500
   const j = await resp.json();
   return j.places || [];
 }
-
-/* 메뉴 대표 이미지 후보들(서버 프록시 /api/food-image 경유). 메뉴명별 localStorage 캐시.
-   반환: [{ image, thumb, w, h }] — 호출부가 앞에서부터 로드 시도(고화질 우선), 다 실패하면 이모지 폴백. */
-export async function fetchFoodImage(name) {
-  const key = `cm_food_img3_${name}`;  // v3: 후보 리스트 + 품질 필터
-  try { const c = localStorage.getItem(key); if (c !== null) return JSON.parse(c); } catch (e) {}
-  try {
-    const resp = await fetch(`/api/food-image?q=${encodeURIComponent(name)}`);
-    if (!resp.ok) return [];
-    const j = await resp.json();
-    const arr = j.candidates || [];
-    try { localStorage.setItem(key, JSON.stringify(arr)); } catch (e) {}
-    return arr;
-  } catch (e) { return []; }
-}
