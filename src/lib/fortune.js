@@ -7,7 +7,7 @@ import {
   calculateSaju, sajuSummaryLine, dailyFortuneScore, weeklyFortuneScore,
 } from './saju.js';
 
-export const API_MODEL = 'gemini-3.5-flash';
+export const API_MODEL = 'gemini-3.1-flash-lite';
 /* global process */ // Node(스크립트)에서도 import되는 모듈 — process는 typeof 가드로 안전하게 참조
 // 브라우저(Vite): VITE_GEMINI_API_KEY · Node(스크립트/함수): process.env
 const RAW_KEY =
