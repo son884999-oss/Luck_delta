@@ -1001,8 +1001,15 @@ function Hub({ nickname, birth, oh, error, onPick, onEditBirth,
 
         {/* 원소 메달리온 — 오행 심볼 한 점(궤도링·부유 애니메이션 제거: 가독·성능) */}
         <div className="relative flex items-center justify-center" style={{ width:104, height:104, marginTop:8, marginBottom:4 }}>
+          {/* 회전하는 오행색 오로라 후광 — 정적 메달리온에 생기 */}
+          <div className="absolute rounded-full pointer-events-none" style={{ inset:-9,
+            background:`conic-gradient(from 0deg, transparent, ${elColor}44, transparent 42%, ${elColor}26, transparent 72%, ${elColor}44, transparent)`,
+            animation:'halo-spin 16s linear infinite' }}/>
           <div className="absolute rounded-full pointer-events-none"
             style={{ width:100, height:100, background:`radial-gradient(circle, ${elColor}33, transparent 70%)`, filter:'blur(13px)' }}/>
+          {/* 반짝임 */}
+          <span className="absolute rounded-full" style={{ top:7, right:9, width:4, height:4, background:'#fff', boxShadow:`0 0 6px 1px ${elColor}`, animation:'cm-twinkle 3s ease-in-out infinite' }}/>
+          <span className="absolute rounded-full" style={{ bottom:11, left:7, width:3, height:3, background:'#fff', boxShadow:`0 0 5px 1px ${elColor}`, animation:'cm-twinkle 4s ease-in-out 1s infinite' }}/>
           <div className="relative flex items-center justify-center rounded-full"
             style={{ width:88, height:88, background:`radial-gradient(circle at 50% 35%, ${elColor}24, rgba(10,14,32,0.55))`,
               border:`1px solid ${elColor}55`, boxShadow:`0 8px 28px ${elColor}2a, inset 0 0 20px ${elColor}1a` }}>
@@ -1041,7 +1048,7 @@ function Hub({ nickname, birth, oh, error, onPick, onEditBirth,
         ].map((c) => (
           <button key={c.key} onClick={() => { c.onClick(); vibrate(12); playNavigation(); }}
             className="w-full block group active:scale-[0.985] transition-transform">
-            <div className="glass-strong rounded-[20px] relative overflow-hidden text-left"
+            <div className={`glass-strong rounded-[20px] relative overflow-hidden text-left ${c.accent ? 'luxe-sheen' : ''}`}
               style={{ border: c.accent ? `1.5px solid ${c.color}55` : `1px solid ${c.color}2e`,
                 boxShadow: c.accent ? `0 6px 22px ${c.color}1f` : undefined }}>
               <div className="absolute pointer-events-none" style={{ right:-16, top:-16, width:104, height:104, borderRadius:'50%', background:`${c.color}14`, filter:'blur(26px)' }}/>
@@ -2011,7 +2018,6 @@ function ResultPage({ m, page, r, birth, oh, yesterday, ritualStep, cfg, onGungh
           { label:'오전', text:r.timeFlow.morning }, { label:'오후', text:r.timeFlow.afternoon }, { label:'저녁', text:r.timeFlow.evening },
         ]}/>}
         <LuckyBento r={r}/>
-        <QuoteBlock text={r.quote}/>
         <ClassicBlock classic={r.classic}/>
         {r.basisSummary && <BasisBlock text={r.basisSummary}/>}
       </div>

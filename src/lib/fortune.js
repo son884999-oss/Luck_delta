@@ -178,14 +178,14 @@ export function buildPrompt(mode, data, data2, userName, extra) {
 
   // fortune (오늘의 운세) — 기본
   return {
-    system: `${base} 오늘(${today}) 운세를 분석합니다.${WARM}\n오늘의 길흉 점수는 ${extra?.scoreHint ?? 80}점이에요(일진 기준). 이 점수에 어울리는 톤·내용으로 일관되게 작성해 주세요.\n필드: oneliner(15자 이내), ohaengSummary(오행 기운 한 문장), comprehensive/wealthText/loveText/successText/healthText(각 3~5문장), actionTips{wealth,love,success,health 각 한 줄}, quote(오늘의 지혜 한마디), classic(오늘 ${userName}님께 건네는 동양 고전 명구 하나 — 사자성어·고사성어·불교 구절(반야심경 등)·사서삼경(논어·주역 등) 중 오늘 기운에 가장 어울리는 단 하나. 흔하고 진부한 건 피하기. hanja=원문 한자 4~10자, eum=한글 음, meaning=쉬운 우리말 뜻 한 문장, source=출처나 갈래 예 '논어'·'반야심경'·'고사성어'), timeFlow{morning,afternoon,evening 각 한 줄}, luckyColor, luckyNumber(1~99), luckyFood, luckyStyle(코디 한 줄), basisSummary(근거 2~3줄), score(1~100).`,
+    system: `${base} 오늘(${today}) 운세를 분석합니다.${WARM}\n오늘의 길흉 점수는 ${extra?.scoreHint ?? 80}점이에요(일진 기준). 이 점수에 어울리는 톤·내용으로 일관되게 작성해 주세요.\n필드: oneliner(15자 이내), ohaengSummary(오행 기운 한 문장), comprehensive/wealthText/loveText/successText/healthText(각 3~5문장), actionTips{wealth,love,success,health 각 한 줄}, classic(오늘 ${userName}님께 건네는 동양 고전 명구 하나 — 사자성어·고사성어·불교 구절(반야심경 등)·사서삼경(논어·주역 등) 중 오늘 기운에 가장 어울리는 단 하나. 흔하고 진부한 건 피하기. hanja=원문 한자 4~10자, eum=한글 음, meaning=쉬운 우리말 뜻 한 문장, source=출처나 갈래 예 '논어'·'반야심경'·'고사성어'), timeFlow{morning,afternoon,evening 각 한 줄}, luckyColor, luckyNumber(1~99), luckyFood, luckyStyle(코디 한 줄), basisSummary(근거 2~3줄), score(1~100).`,
     user: `${userName}님, ${data.y}년 ${data.m}월 ${data.d}일 ${data.h}시 ${data.min}분. 일주:${ilju}. 오늘:${today}. 운세 분석 요청.`,
     schema: S({ score:NUM, oneliner:STR, ohaengSummary:STR, comprehensive:STR, wealthText:STR, loveText:STR, successText:STR, healthText:STR,
       actionTips:S({ wealth:STR, love:STR, success:STR, health:STR }, ['wealth','love','success','health']),
-      quote:STR, classic:S({ hanja:STR, eum:STR, meaning:STR, source:STR }, ['hanja','eum','meaning','source']),
+      classic:S({ hanja:STR, eum:STR, meaning:STR, source:STR }, ['hanja','eum','meaning','source']),
       timeFlow:S({ morning:STR, afternoon:STR, evening:STR }, ['morning','afternoon','evening']),
       luckyColor:STR, luckyNumber:NUM, luckyFood:STR, luckyStyle:STR, basisSummary:STR },
-      ['score','oneliner','ohaengSummary','comprehensive','wealthText','loveText','successText','healthText','actionTips','quote','classic','timeFlow','luckyColor','luckyNumber','luckyFood','luckyStyle','basisSummary']),
+      ['score','oneliner','ohaengSummary','comprehensive','wealthText','loveText','successText','healthText','actionTips','classic','timeFlow','luckyColor','luckyNumber','luckyFood','luckyStyle','basisSummary']),
   };
 }
 
