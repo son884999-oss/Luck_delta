@@ -16,9 +16,27 @@ const RAW_KEY =
   (typeof process !== 'undefined' && process.env?.VITE_GEMINI_API_KEY) ||
   '여기에_API_키_입력';
 export const apiKey = RAW_KEY;
-export const hasApiKey = () => !!apiKey.trim() && apiKey.trim() !== '여기에_API_키_입력';
+// 브라우저에 VITE 키가 빌드되지 않았으면 → 서버 프록시(/api/gemini) 사용(키 비노출).
+//  · 개발: .env에 VITE_GEMINI_API_KEY 두면 직접 호출(프록시 없이 동작·검증 가능)
+//  · 운영: VITE 키를 빼면 자동으로 프록시 경로 → 번들에 키가 없음(도용 방지)
+const USE_PROXY = typeof window !== 'undefined'
+  && !(typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY);
+export const hasApiKey = () => USE_PROXY || (!!apiKey.trim() && apiKey.trim() !== '여기에_API_키_입력');
 
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${API_MODEL}:generateContent?key=${apiKey.trim()}`;
+// Gemini 호출 공용 — 프록시(브라우저·운영) 또는 직접(개발·Node 스크립트)
+function geminiGenerate(payload, signal) {
+  if (USE_PROXY) {
+    return fetch('/api/gemini', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, signal,
+      body: JSON.stringify({ model: API_MODEL, payload }),
+    });
+  }
+  return fetch(ENDPOINT, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, signal,
+    body: JSON.stringify(payload),
+  });
+}
 
 /* ── 메뉴 정의 — 허브에서 사용 ──────────────────────────────── */
 export const MODES = {
@@ -289,16 +307,11 @@ export async function analyze({ mode, birth, birth2, userName, extra }) {
     const timer = setTimeout(() => controller.abort(), 30000);
     let resp;
     try {
-      resp = await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: user }] }],
-          systemInstruction: { parts: [{ text: system }] },
-          generationConfig: { responseMimeType: 'application/json', responseSchema: schema },
-        }),
-      });
+      resp = await geminiGenerate({
+        contents: [{ parts: [{ text: user }] }],
+        systemInstruction: { parts: [{ text: system }] },
+        generationConfig: { responseMimeType: 'application/json', responseSchema: schema },
+      }, controller.signal);
     } catch (fetchErr) {
       clearTimeout(timer);
       if (fetchErr.name === 'AbortError') { const e = new Error('응답 시간이 너무 길어요. 잠시 후 다시 시도해 주세요.'); e.code = 'timeout'; throw e; }
@@ -346,14 +359,11 @@ async function callGemini({ system, user, schema }) {
   const timer = setTimeout(() => controller.abort(), 55000); // 리포트 파트는 응답이 느릴 수 있어 55초
   let resp;
   try {
-    resp = await fetch(ENDPOINT, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: user }] }],
-        systemInstruction: { parts: [{ text: system }] },
-        generationConfig: { responseMimeType: 'application/json', responseSchema: schema },
-      }),
-    });
+    resp = await geminiGenerate({
+      contents: [{ parts: [{ text: user }] }],
+      systemInstruction: { parts: [{ text: system }] },
+      generationConfig: { responseMimeType: 'application/json', responseSchema: schema },
+    }, controller.signal);
   } catch (fetchErr) {
     clearTimeout(timer);
     // 네트워크 오류(Failed to fetch, net::ERR_* 등) → 친화적 메시지
