@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Fingerprint, Heart, Coins, Wand2, Trash2, Eye, Shield, Pencil,
   TrendingUp, ChevronDown, ChevronRight, Sparkles, X, Calendar, Star, Zap, Clock, Users, Home,
-  Crown, VolumeX, Volume2, GraduationCap, Utensils, Search, MapPin, Music, BookOpen, Share2, RotateCcw,
+  Crown, VolumeX, Volume2, GraduationCap, Utensils, Search, MapPin, Music, BookOpen, RotateCcw,
 } from 'lucide-react';
 import {
   OHAENG, calculateIlju, calculateSaju, getOhaeng, getTti, todayStr, todayKey, vibrate, weekRangeStr, getRelationshipArchetype,
@@ -1938,13 +1938,6 @@ function Result({ result: r, nickname, birth, yesterday, streak, onHome, onRetry
       <div className="relative z-40 flex-shrink-0 pb-[env(safe-area-inset-bottom)]">
         <div className="px-5 pt-8 pb-4" style={{ background:'linear-gradient(to top,var(--bg) 55%,transparent)' }}>
           <div className="max-w-xl mx-auto flex items-center gap-2.5">
-            {onShare && (
-              <button onClick={onShare} aria-label="공유하기"
-                className="flex items-center justify-center rounded-2xl active:scale-95 transition-transform flex-shrink-0"
-                style={{ width:54, height:54, color:'var(--ink-dim)', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)' }}>
-                <Share2 size={19}/>
-              </button>
-            )}
             {onRetry && (
               <button onClick={onRetry} aria-label="다시 풀이받기"
                 className="flex flex-col items-center justify-center rounded-2xl active:scale-95 transition-transform flex-shrink-0"
@@ -1986,13 +1979,6 @@ function ResultShell({ r, streak, onFont, fontLabel, oh, children, onHome, onSha
         <div className="fixed bottom-0 left-0 right-0 z-40 pb-[env(safe-area-inset-bottom)]">
           <div className="px-5 pt-10 pb-4" style={{ background:'linear-gradient(to top,var(--bg) 58%,transparent)' }}>
             <div className="max-w-xl mx-auto flex items-center gap-2.5">
-              {onShare && (
-                <button onClick={onShare} aria-label="공유하기"
-                  className="flex items-center justify-center rounded-2xl active:scale-95 transition-transform flex-shrink-0"
-                  style={{ width:54, height:54, color:'var(--ink-dim)', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)' }}>
-                  <Share2 size={19}/>
-                </button>
-              )}
               <button onClick={onHome}
                 className="flex-1 flex items-center justify-center gap-2 rounded-2xl font-bold text-[15px] text-white active:scale-[0.98] transition-transform"
                 style={{ minHeight:54, background:'linear-gradient(135deg,#6366f1,#a78bfa)', boxShadow:'0 8px 24px rgba(99,102,241,0.35)' }}>
