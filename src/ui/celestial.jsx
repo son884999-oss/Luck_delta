@@ -627,7 +627,29 @@ export const ScoreHistoryChart = memo(() => {
     try { const raw = localStorage.getItem('cm_score_history'); if (raw) return JSON.parse(raw).slice(-7); } catch (e) {}
     return [];
   });
-  if (history.length < 2) return null;
+  // 빈 상태 — 기록 2개 미만이면 사라지는 대신 유도형 안내(신규 유저 허브 공백 방지)
+  if (history.length < 2) {
+    return (
+      <div className="glass rounded-2xl p-4 space-y-2.5">
+        <div className="flex items-center gap-2">
+          <TrendingUp size={13} style={{ color:'rgba(129,140,248,0.7)' }}/>
+          <span className="text-[11.5px] font-bold" style={{ color:'var(--ink-dim)' }}>최근 운의 흐름</span>
+        </div>
+        <div className="flex items-center gap-3.5 px-1 py-2.5">
+          <svg width="58" height="34" viewBox="0 0 58 34" fill="none" aria-hidden="true" className="flex-shrink-0">
+            <path d="M3 27 L17 21 L31 25 L45 11 L55 15" stroke="rgba(129,140,248,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 4.5"/>
+            <circle cx="55" cy="15" r="3.2" fill="#818cf8"/>
+          </svg>
+          <div className="min-w-0">
+            <p className="text-[13px] font-bold" style={{ color:'var(--ink)' }}>운의 흐름이 곧 그려져요</p>
+            <p className="text-[11.5px] mt-0.5" style={{ color:'var(--ink-dim)', lineHeight:1.5 }}>
+              {history.length === 1 ? '내일 또 보면 점이 이어져 그래프가 돼요' : '오늘의 운세를 보면 점수가 기록돼 흐름이 쌓여요'}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const scores = history.map(h => h.score);
   const minS = Math.min(...scores), maxS = Math.max(...scores), range = maxS - minS || 1;
   const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
