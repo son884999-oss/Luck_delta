@@ -2,7 +2,7 @@
    천문 — 자미두수 명반 계산 (iztro MIT 라이브러리 래퍼)
    iztro: https://github.com/SylarLong/iztro
 ================================================================ */
-import { astro } from 'iztro';
+// iztro는 calcZiwei 안에서 동적 import → 메인 번들에서 분리(자미두수 화면 열 때만 로드)
 
 /* ── 한국어 매핑 테이블 ── */
 export const PALACE_KO = {
@@ -57,8 +57,9 @@ export const SIGN_KO = {
 };
 
 /* ── 명반 계산 ── */
-export function calcZiwei(birth, gender = 'male') {
+export async function calcZiwei(birth, gender = 'male') {
   try {
+    const { astro } = await import('iztro'); // 지연 로드 — iztro(2.5MB)를 초기 번들에서 분리
     const { y, m, d, h } = birth;
     const hour = (h === '모름' || h == null || h === '') ? 12 : parseInt(h);
     const dateStr = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;

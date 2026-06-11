@@ -3709,7 +3709,13 @@ function AstrologyScreen({ nickname, birth, ilju, onBack }) {
 ================================================================ */
 function ZiweiScreen({ nickname, birth, ilju, onBack }) {
   const [gender, setGender] = useState('female');
-  const ziwei = useMemo(() => calcZiwei(birth, gender), [birth, gender]);
+  // iztro 지연 로드 — calcZiwei가 async(동적 import)라 effect로 받는다(초기 번들 경량화)
+  const [ziwei, setZiwei] = useState(null);
+  useEffect(() => {
+    let alive = true; setZiwei(null);
+    calcZiwei(birth, gender).then(z => { if (alive) setZiwei(z); }).catch(() => { if (alive) setZiwei({ ok: false }); });
+    return () => { alive = false; };
+  }, [birth, gender]);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
@@ -3721,7 +3727,7 @@ function ZiweiScreen({ nickname, birth, ilju, onBack }) {
     'careerPalace','propertyPalace','spiritPalace','parentsPalace'];
 
   const run = async () => {
-    if (!ziwei.ok) { setErr('명반 계산에 실패했어요.'); return; }
+    if (!ziwei || !ziwei.ok) { setErr('명반 계산에 실패했어요.'); return; }
     setLoading(true); setErr(''); setTab('analysis');
     try {
       const r = await analyzeZiwei({ birth, userName: nickname, ziwei, sajuIlju: ilju, gender });
@@ -3768,7 +3774,16 @@ function ZiweiScreen({ nickname, birth, ilju, onBack }) {
           </button>
         ))}
       </div>
-      {tab === 'map' && ziwei.ok && (
+      {tab === 'map' && !ziwei && (
+        <div className="flex flex-col items-center gap-3 py-16 animate-fade-in">
+          <div className="rounded-full animate-spin" style={{ width:44, height:44, border:`3px solid ${AC}22`, borderTopColor:AC }}/>
+          <p className="text-[13px]" style={{ color:'var(--ink-dim)' }}>명반을 계산하는 중이에요…</p>
+        </div>
+      )}
+      {tab === 'map' && ziwei && !ziwei.ok && (
+        <div className="py-12"><ErrorBox msg="명반 계산에 실패했어요. 생년월일을 확인해 주세요."/></div>
+      )}
+      {tab === 'map' && ziwei && ziwei.ok && (
         <div className="space-y-4 animate-fade-up">
           <div className="glass-strong rounded-[20px] p-5" style={{ border:`1.5px solid ${AC}35` }}>
             <p className="text-[10px] font-bold tracking-[0.28em] mb-1" style={{ color:AC }}>명반 핵심</p>
