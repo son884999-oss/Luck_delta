@@ -35,7 +35,7 @@ function OrnLine({ w = 120 }) {
 function ClassicCard({ item, fav, onFav, index = 0, featured = false }) {
   const a = classicCatColor(item.c);
   return (
-    <div className={`rounded-[20px] px-5 ${featured ? 'py-7 luxe-sheen' : 'py-5'} relative overflow-hidden animate-fade-up`}
+    <div className={`rounded-[20px] px-5 ${featured ? 'py-7' : 'py-5'} relative overflow-hidden animate-fade-up`}
       style={{
         background: featured
           ? `linear-gradient(160deg, ${hexA(a, 0.18)} 0%, ${hexA(a, 0.04)} 58%, rgba(167,139,250,0.06) 100%)`
@@ -47,11 +47,6 @@ function ClassicCard({ item, fav, onFav, index = 0, featured = false }) {
       <span className="serif absolute pointer-events-none select-none" style={{ top:featured ? -20 : -14, left:6, fontSize:featured ? 104 : 82, lineHeight:1, color:hexA(a, 0.12) }}>“</span>
       {/* 색 후광 */}
       <div className="absolute inset-0 pointer-events-none" style={{ background:`radial-gradient(ellipse 74% 62% at 50% 22%, ${hexA(a, featured ? 0.18 : 0.10)}, transparent 70%)` }}/>
-      {featured && (
-        <div className="absolute pointer-events-none" style={{ width:'72%', aspectRatio:'1/1', top:'-26%', left:'14%', borderRadius:'50%',
-          background:`conic-gradient(from 0deg, transparent, ${hexA(a, 0.16)}, transparent 40%, ${hexA(a, 0.11)}, transparent 70%, ${hexA(a, 0.16)}, transparent)`,
-          animation:'halo-spin 22s linear infinite' }}/>
-      )}
       <div className="relative flex items-start justify-between gap-3">
         <p className="serif font-black leading-snug break-keep" style={{ fontSize: featured ? 29 : 23, letterSpacing:'0.05em', color:a, textShadow:`0 2px ${featured ? 20 : 12}px ${hexA(a, 0.4)}` }}>{item.h}</p>
         <button onClick={() => { onFav(item.h); vibrate(8); playTap(); }} aria-label={fav ? '즐겨찾기 해제' : '즐겨찾기'}
