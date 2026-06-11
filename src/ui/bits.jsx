@@ -32,9 +32,9 @@ export function ErrorBox({ msg }) {
     return msg;
   })();
   return (
-    <div className="px-4 py-3.5 rounded-2xl" style={{ background: 'rgba(251,113,133,0.07)', border: '1px solid rgba(251,113,133,0.22)' }}>
+    <div role="alert" className="px-4 py-3.5 rounded-2xl" style={{ background: 'rgba(251,113,133,0.07)', border: '1px solid rgba(251,113,133,0.22)' }}>
       <div className="flex items-start gap-2.5">
-        <span className="text-[16px] flex-shrink-0 mt-0.5">😔</span>
+        <span className="text-[16px] flex-shrink-0 mt-0.5" aria-hidden="true">😔</span>
         <p className="text-[13.5px]" style={{ color: 'rgba(251,113,133,0.9)', lineHeight: 1.6 }}>{friendly}</p>
       </div>
     </div>

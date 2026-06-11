@@ -129,11 +129,12 @@ function useToast() {
     setTimeout(() => setToast(null), 3000);
   };
   const ToastUI = toast ? (
-    <div className="fixed top-5 left-0 right-0 z-[300] flex justify-center px-5 pointer-events-none animate-fade-up">
+    <div className="fixed top-5 left-0 right-0 z-[300] flex justify-center px-5 pointer-events-none animate-fade-up"
+      role="status" aria-live="polite">
       <div className="pointer-events-auto glass-strong rounded-2xl flex items-center gap-3 max-w-sm"
         style={{ padding: '12px 18px', border: `1px solid ${toast.type === 'error' ? 'rgba(251,113,133,0.35)' : 'rgba(167,139,250,0.3)'}`,
           boxShadow: `0 12px 36px ${toast.type === 'error' ? 'rgba(251,113,133,0.2)' : 'rgba(99,102,241,0.25)'}` }}>
-        <span style={{ fontSize: 18 }}>{toast.type === 'error' ? '⚠️' : toast.type === 'success' ? '✦' : 'ℹ️'}</span>
+        <span style={{ fontSize: 18 }} aria-hidden="true">{toast.type === 'error' ? '⚠️' : toast.type === 'success' ? '✦' : 'ℹ️'}</span>
         <p className="text-[14px] font-semibold" style={{ color: 'var(--ink)' }}>{toast.msg}</p>
       </div>
     </div>
@@ -1776,9 +1777,10 @@ function TarotDraw({ onBack, onPrefetch, onReveal }) {
 ================================================================ */
 function Analyzing({ progress, loadStep, onCancel }) {
   return (
-    <div className="screen-vh flex flex-col items-center justify-center gap-10 animate-fade-in px-6">
-      {/* 원형 진행 링 */}
-      <div className="relative flex items-center justify-center" style={{ width: 220, height: 220 }}>
+    <div className="screen-vh flex flex-col items-center justify-center gap-10 animate-fade-in px-6"
+      role="status" aria-label="운세를 분석하고 있어요">
+      {/* 원형 진행 링 (장식·시각 — 스크린리더 제외) */}
+      <div className="relative flex items-center justify-center" style={{ width: 220, height: 220 }} aria-hidden="true">
         {/* 외부 궤도 */}
         <div className="absolute inset-0 rounded-full" style={{ border:'1px solid rgba(255,255,255,0.06)', animation:'orbit 16s linear infinite' }}>
           <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full" style={{ background:'#818cf8', boxShadow:'0 0 16px 4px rgba(129,140,248,0.6)' }}/>
@@ -1806,8 +1808,9 @@ function Analyzing({ progress, loadStep, onCancel }) {
         </div>
       </div>
 
-      {/* 로딩 메시지 */}
-      <div key={loadStep} className="flex flex-col items-center gap-3 text-center w-full max-w-xs" style={{ animation:'fade-up .5s cubic-bezier(.16,.84,.44,1) both' }}>
+      {/* 로딩 메시지 — 단계 변경 시 스크린리더에 알림(progress 숫자는 너무 잦아 제외) */}
+      <div key={loadStep} className="flex flex-col items-center gap-3 text-center w-full max-w-xs" style={{ animation:'fade-up .5s cubic-bezier(.16,.84,.44,1) both' }}
+        aria-live="polite">
         <p className="text-[18px] font-semibold text-white leading-snug">{LOADING_STEPS[loadStep].text}</p>
         <p className="text-[13.5px]" style={{ color:'var(--ink-faint)', lineHeight: 1.6 }}>{LOADING_STEPS[loadStep].detail}</p>
         {/* 진행 점 */}
