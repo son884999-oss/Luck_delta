@@ -234,6 +234,12 @@ export const getYesterdayScore = () => {
 export const hasTodayFortune = (birth) =>
   !!localStorage.getItem(cacheKeyFor('fortune', birth, null));
 
+/* 캐시 비우기 — '다시 풀이받기'(새 관점으로 재생성)용. 해당 모드의 캐시 키만 제거 → 다음 analyze가 새로 호출. */
+export function clearCache(mode, birth, birth2) {
+  if (mode === 'tarot') return; // 타로는 캐시 안 함
+  try { localStorage.removeItem(cacheKeyFor(mode, birth, birth2)); } catch (e) {}
+}
+
 /* 캐시 정리 — 오늘 날짜가 아닌 날짜성 캐시 삭제(lifetime/season/week 유지) */
 export function pruneCache() {
   const today = todayKey();
