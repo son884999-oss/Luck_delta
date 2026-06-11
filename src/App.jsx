@@ -2723,9 +2723,19 @@ function ReportSelect({ nickname, birth2, nickname2, setNickname2, setBirth2, on
       <header className="space-y-2.5">
         <div className="w-12 h-[3px] rounded-full" style={{ background:'linear-gradient(to right,#C8A876,#a78bfa)' }}/>
         <h2 className="serif font-bold text-white leading-snug" style={{ fontSize:'clamp(1.7rem,7vw,2.2rem)' }}>프리미엄 리포트</h2>
-        <p className="text-[14px]" style={{ color:'var(--ink-dim)', lineHeight:1.6 }}>
-          {nickname || '사용자'}님의 사주를 AI로 깊이 분석해 PDF 한 권으로 정리해 드려요.
+        <p className="text-[14.5px]" style={{ color:'var(--ink)', lineHeight:1.65 }}>
+          나도 몰랐던 나를, <b style={{ color:'#e7c98a' }}>태어난 순간의 명식 그대로</b> 읽어 한 권에.
         </p>
+        <p className="text-[13px]" style={{ color:'var(--ink-dim)', lineHeight:1.6 }}>
+          {nickname || '사용자'}님만의 기질·재능·흐름과 ‘지금 무엇을 하면 좋은지’까지, 소장용 PDF로 정리해 드려요.
+        </p>
+        {/* 가치 신호 — 마켓성(왜 프리미엄인가) */}
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {['✦ 명식 기반 개인화', '10개 챕터 심층', '소장용 PDF·메일 발송'].map(t => (
+            <span key={t} className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+              style={{ color:'rgba(200,168,118,0.95)', background:'rgba(200,168,118,0.1)', border:'1px solid rgba(200,168,118,0.26)' }}>{t}</span>
+          ))}
+        </div>
       </header>
 
       {cards.map((c, ci) => (
