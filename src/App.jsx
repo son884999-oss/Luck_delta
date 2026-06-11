@@ -999,32 +999,38 @@ function Hub({ nickname, birth, oh, error, onPick, onEditBirth,
       <div className="relative flex flex-col items-center text-center pt-2 pb-1">
         {/* 상단 '수정' 버튼 제거(사용자 요청). 내 정보 수정은 설정 패널에서. */}
 
-        {/* 원소 메달리온 — 오행 심볼 한 점(궤도링·부유 애니메이션 제거: 가독·성능) */}
-        <div className="relative flex items-center justify-center" style={{ width:104, height:104, marginTop:8, marginBottom:4 }}>
-          {/* 회전하는 오행색 오로라 후광 — 정적 메달리온에 생기 */}
-          <div className="absolute rounded-full pointer-events-none" style={{ inset:-9,
-            background:`conic-gradient(from 0deg, transparent, ${elColor}44, transparent 42%, ${elColor}26, transparent 72%, ${elColor}44, transparent)`,
-            animation:'halo-spin 16s linear infinite' }}/>
-          <div className="absolute rounded-full pointer-events-none"
-            style={{ width:100, height:100, background:`radial-gradient(circle, ${elColor}33, transparent 70%)`, filter:'blur(13px)' }}/>
-          {/* 반짝임 */}
-          <span className="absolute rounded-full" style={{ top:7, right:9, width:4, height:4, background:'#fff', boxShadow:`0 0 6px 1px ${elColor}`, animation:'cm-twinkle 3s ease-in-out infinite' }}/>
-          <span className="absolute rounded-full" style={{ bottom:11, left:7, width:3, height:3, background:'#fff', boxShadow:`0 0 5px 1px ${elColor}`, animation:'cm-twinkle 4s ease-in-out 1s infinite' }}/>
-          <div className="relative flex items-center justify-center rounded-full"
-            style={{ width:88, height:88, background:`radial-gradient(circle at 50% 35%, ${elColor}24, rgba(10,14,32,0.55))`,
-              border:`1px solid ${elColor}55`, boxShadow:`0 8px 28px ${elColor}2a, inset 0 0 20px ${elColor}1a` }}>
-            <OhaengSymbol type={elName} size={58}/>
+        {/* ── 오늘의 천기 오브 — 정적 오행 로고 대신 '오늘'을 호기심 훅으로 ──
+             미확인: 봉인된 ✦ + 초대 펄스 / 확인함: 오늘 점수. 탭 → 오늘의 운세.
+             (블러·회전 없이 그라데이션+그림자만 → 가볍고 렉 없음) */}
+        <button onClick={() => { onPick('fortune'); vibrate(14); }}
+          aria-label={todayDone ? '오늘의 운세 다시 보기' : '오늘의 운세 확인하기'}
+          className="relative flex items-center justify-center active:scale-95 transition-transform"
+          style={{ width:128, height:128, marginTop:6, marginBottom:2 }}>
+          <div className="absolute rounded-full pointer-events-none" style={{ inset:-6, background:`radial-gradient(circle, ${elColor}2e, transparent 66%)` }}/>
+          {!todayDone && <span className="absolute rounded-full animate-ping" style={{ inset:10, border:`1.5px solid ${elColor}`, opacity:0.4 }}/>}
+          <div className="relative flex flex-col items-center justify-center rounded-full"
+            style={{ width:114, height:114, background:`radial-gradient(circle at 50% 32%, ${elColor}2c, rgba(11,15,32,0.74))`,
+              border:`1.5px solid ${elColor}66`, boxShadow:`0 10px 32px ${elColor}33, inset 0 0 24px ${elColor}1c` }}>
+            {todayDone && typeof todayScore === 'number' && !isNaN(todayScore) ? (
+              <>
+                <span className="font-black tabular-nums leading-none" style={{ fontSize:46, color:'#fff', textShadow:`0 0 22px ${elColor}aa` }}>{todayScore}</span>
+                <span className="text-[10px] font-bold tracking-[0.18em] mt-1.5" style={{ color:`${elColor}cc` }}>오늘의 점수</span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize:38, color:'#fff', textShadow:`0 0 22px ${elColor}` }}>✦</span>
+                <span className="text-[10.5px] font-bold tracking-[0.18em] mt-1.5" style={{ color:`${elColor}dd` }}>오늘의 천기</span>
+              </>
+            )}
           </div>
-        </div>
+        </button>
 
-        {/* 이름 — 명조(✦ 장식 제거: 사용자 요청) */}
-        <h1 className="serif font-black leading-tight" style={{ fontSize:26, color:'var(--ink)' }}>
+        {/* 이름 + 오행·생일은 작은 메타로(주인공은 '오늘') */}
+        <h1 className="serif font-black leading-tight mt-1" style={{ fontSize:26, color:'var(--ink)' }}>
           {nickname || '사용자'}님
         </h1>
-
-        {/* 생년월일 — 담백하게 (기운 칩 대체: 사용자 요청) */}
-        <p className="text-[13px] tabular-nums mt-2" style={{ color:'var(--ink-faint)', letterSpacing:'0.02em' }}>
-          {birth.y}.{String(birth.m).padStart(2,'0')}.{String(birth.d).padStart(2,'0')}
+        <p className="text-[12.5px] tabular-nums mt-1.5" style={{ color:'var(--ink-faint)', letterSpacing:'0.02em' }}>
+          {oh?.plain ? `${oh.plain} 기운 · ` : ''}{birth.y}.{String(birth.m).padStart(2,'0')}.{String(birth.d).padStart(2,'0')}
         </p>
 
         {/* 금빛 헤어라인 */}
