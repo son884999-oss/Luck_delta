@@ -320,7 +320,8 @@ export const ConfirmDialog = memo(({ open, title, message, confirmLabel = '확�
 
 /* ── 점수 링 (원형 SVG) ────────────────────────────────────── */
 export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emojiOverride }) => {
-  const [displayed, setDisplayed] = useState(0);  // 카운트업 표시값
+  const numRef = useRef(null);                     // 숫자 카운트업 — 리렌더 없이 DOM 직접 갱신(렉 제거)
+  const [started, setStarted] = useState(false);   // 숫자 페이드인 시작
   const [ringFill, setRingFill] = useState(0);     // 링 채움 0→score
   const [revealed, setRevealed] = useState(false);
   const [burst, setBurst] = useState(false);       // 파티클 터짐
@@ -332,30 +333,28 @@ export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emo
   const diff = yesterdayScore ? score - yesterdayScore : null;
 
   useEffect(() => {
-    // 0.5s 후 링+숫자 카운트업 시작
-    const t0 = setTimeout(() => setRingFill(score), 500);
-    // 숫자는 직접 카운트업 (0 → score, 1.8초)
+    // 카운트업은 ref로 DOM textContent만 직접 갱신 → 프레임마다 React 리렌더 없음(렉 제거)
+    const DELAY = 320, DURATION = 1200;
+    if (numRef.current) numRef.current.textContent = '0';
+    const t0 = setTimeout(() => { setStarted(true); setRingFill(score); }, DELAY);
     let frame;
     const start = performance.now();
-    const DURATION = 1800;
     const tick = (now) => {
-      const p = Math.min(1, (now - start - 500) / DURATION);
+      const p = Math.min(1, (now - start - DELAY) / DURATION);
       if (p < 0) { frame = requestAnimationFrame(tick); return; }
-      // easeOutCubic
-      const ease = 1 - Math.pow(1 - p, 3);
-      setDisplayed(Math.round(ease * score));
+      const ease = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      if (numRef.current) numRef.current.textContent = String(Math.round(ease * score));
       if (p < 1) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
-    // 공개 + 점수 반응형 사운드/햅틱(의식의 정점) + 파티클
+    // 공개 정점 — 사운드/햅틱/파티클(타이밍 단축으로 '느림' 해소)
     const t2 = setTimeout(() => {
       setRevealed(true);
-      // 점수가 높을수록 더 풍부한 햅틱 패턴
       const hap = score >= 88 ? [30, 40, 60, 40, 90] : score >= 75 ? [28, 40, 70] : [24, 50];
       vibrate(hap);
       playScoreReveal(score);
-    }, 2400);
-    const t3 = setTimeout(() => setBurst(true), 2500);
+    }, 1550);
+    const t3 = setTimeout(() => setBurst(true), 1600);
     return () => { clearTimeout(t0); clearTimeout(t2); clearTimeout(t3); cancelAnimationFrame(frame); };
   }, [score]);
 
@@ -370,14 +369,9 @@ export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emo
   return (
     <div className="relative flex flex-col items-center gap-6">
       <div className="relative" style={{ width:230, aspectRatio:'1/1' }}>
-        {/* 공개 후 오행색 외곽 글로우 */}
-        <div className="absolute inset-[-22px] rounded-full transition-all duration-1000"
-          style={{ boxShadow:`0 0 ${revealed?'130px':'0px'} ${accent}${revealed?'50':'00'}`, opacity:revealed ? 1 : 0 }}/>
-        {/* 회전하는 보석빛 후광 — 점수 공개의 정점을 화려하게 */}
-        <div className="absolute inset-[-6px] rounded-full pointer-events-none" style={{
-          background:`conic-gradient(from 0deg, transparent, ${accent}66, transparent 38%, #a78bfa55, transparent 68%, ${accent}66, transparent)`,
-          filter:'blur(13px)', opacity: revealed ? 0.7 : 0,
-          animation:'halo-spin 14s linear infinite', transition:'opacity 1.1s ease' }}/>
+        {/* 공개 후 오행색 외곽 글로우 (정적 — 회전·블러 제거로 프레임 드랍 방지) */}
+        <div className="absolute inset-[-22px] rounded-full transition-all duration-700"
+          style={{ boxShadow:`0 0 ${revealed?'90px':'0px'} ${accent}${revealed?'4a':'00'}`, opacity:revealed ? 1 : 0 }}/>
 
         <svg viewBox="0 0 230 230" style={{ display:'block', width:'100%', height:'100%' }} className="-rotate-90">
           {/* 배경 링 */}
@@ -385,7 +379,7 @@ export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emo
           {/* 채움 링 */}
           <circle cx="115" cy="115" r={R} fill="none" stroke="url(#ringGrad)" strokeWidth="8" strokeLinecap="round"
             strokeDasharray={C} strokeDashoffset={C - (ringFill / 100) * C}
-            style={{ transition:'stroke-dashoffset 2.2s cubic-bezier(.16,.84,.44,1)', filter:`drop-shadow(0 0 8px ${accent}88)` }}/>
+            style={{ transition:'stroke-dashoffset 1.3s cubic-bezier(.16,.84,.44,1)', filter:`drop-shadow(0 0 6px ${accent}88)` }}/>
           <defs>
             <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor={accent}/><stop offset="100%" stopColor="#a78bfa"/>
@@ -395,10 +389,10 @@ export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emo
 
         {/* 숫자 */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="font-black tabular-nums leading-none"
+          <span ref={numRef} className="font-black tabular-nums leading-none"
             style={{ fontSize:78, color:'#fff', textShadow:`0 0 40px ${accent}66`,
-              transform: revealed ? 'scale(1)' : 'scale(0.85)', opacity: displayed > 0 ? 1 : 0,
-              transition:'transform .6s cubic-bezier(.16,.84,.44,1), opacity .4s ease' }}>{displayed}</span>
+              transform: revealed ? 'scale(1)' : 'scale(0.85)', opacity: started ? 1 : 0,
+              transition:'transform .6s cubic-bezier(.16,.84,.44,1), opacity .4s ease' }}>0</span>
         </div>
 
         {/* 공개 순간 파티클 버스트 */}
@@ -411,7 +405,7 @@ export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emo
               background: i%4===0 ? accent : i%4===1 ? '#fff' : i%4===2 ? '#fde047' : accent,
               boxShadow:`0 0 ${p.s*2}px ${p.s/2}px ${accent}`,
               opacity: burst ? 0.85 : 0,
-              animation: burst ? `cm-twinkle 2.4s ease-in-out ${p.delay}s infinite` : 'none',
+              animation: burst ? `cm-twinkle 2.4s ease-in-out ${p.delay}s 3` : 'none',
               transition:`opacity .4s ease ${p.delay * 0.5}s`,
             }}/>
           ))}

@@ -6,20 +6,20 @@
 ================================================================ */
 import { todayKey } from './saju.js';
 
-// 카테고리 — c 키와 1:1 (color: 카테고리별 인장 색 테마 — '다른 방' 느낌)
+// 카테고리 — c 키와 1:1 (color: 카테고리별 인장 색 테마 · desc: 한 줄 소개)
 export const CLASSIC_CATEGORIES = [
-  { key: 'myungsim', label: '명심보감',   color: '#e7b94f' },
-  { key: 'noneo',    label: '논어',       color: '#4fc3b0' },
-  { key: 'maengja',  label: '맹자',       color: '#d99a6c' },
-  { key: 'daehak',   label: '대학·중용',  color: '#b39cf8' },
-  { key: 'juyeok',   label: '주역',       color: '#7c9cf0' },
-  { key: 'dodeok',   label: '도덕경',     color: '#5bb8d4' },
-  { key: 'jangja',   label: '장자',       color: '#74c49a' },
-  { key: 'bulgyo',   label: '불교',       color: '#c4a6f5' },
-  { key: 'gosa',     label: '고사성어',   color: '#e8a94e' },
-  { key: 'sonja',    label: '손자병법',   color: '#e08a7a' },
-  { key: 'sigyeong', label: '시경',       color: '#e89ab5' },
-  { key: 'myeongmun',label: '명문·잠언',  color: '#d4b878' },
+  { key: 'myungsim', label: '명심보감',   color: '#e7b94f', desc: '마음을 밝히는 보배로운 거울 — 처세와 수양의 잠언' },
+  { key: 'noneo',    label: '논어',       color: '#4fc3b0', desc: '공자와 제자들이 나눈 배움과 사람됨의 말' },
+  { key: 'maengja',  label: '맹자',       color: '#d99a6c', desc: '의로움과 사람의 본성을 곧게 말하다' },
+  { key: 'daehak',   label: '대학·중용',  color: '#b39cf8', desc: '배움의 차례와 치우치지 않는 중용의 도' },
+  { key: 'juyeok',   label: '주역',       color: '#7c9cf0', desc: '변화의 이치를 읽어 때를 아는 지혜' },
+  { key: 'dodeok',   label: '도덕경',     color: '#5bb8d4', desc: '노자가 전하는 비움과 물 같은 삶' },
+  { key: 'jangja',   label: '장자',       color: '#74c49a', desc: '얽매임을 벗은 자유로운 정신의 우화' },
+  { key: 'bulgyo',   label: '불교',       color: '#c4a6f5', desc: '집착을 내려놓는 마음의 가르침' },
+  { key: 'gosa',     label: '고사성어',   color: '#e8a94e', desc: '옛이야기에서 온 네 글자의 지혜' },
+  { key: 'sonja',    label: '손자병법',   color: '#e08a7a', desc: '다투지 않고 이기는 법, 때와 형세의 통찰' },
+  { key: 'sigyeong', label: '시경',       color: '#e89ab5', desc: '가장 오래된 노래에 담긴 사람의 마음' },
+  { key: 'myeongmun',label: '명문·잠언',  color: '#d4b878', desc: '시대를 넘어 새기는 한 문장의 울림' },
 ];
 export const classicCatColor = (key) =>
   (CLASSIC_CATEGORIES.find(c => c.key === key) || {}).color || '#e7b94f';
