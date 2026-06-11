@@ -4,7 +4,6 @@
    100% 로컬(네트워크 0). 한자는 '장식·교양', 한글 음·쉬운 뜻을 함께 둔다.
    ※ 출처/해석은 일반 통념을 따른 교양용 — 학술 정본이 아닙니다.
 ================================================================ */
-import { todayKey } from './saju.js';
 
 // 카테고리 — c 키와 1:1 (color: 카테고리별 인장 색 테마 · desc: 한 줄 소개)
 export const CLASSIC_CATEGORIES = [
@@ -112,18 +111,28 @@ function hashStr(s) {
   return h >>> 0;
 }
 
-/* 오늘의 3구절 — 날짜+일주 시드로 고정(하루 동안 같음, 매일 바뀜·사람마다 다름) */
-export function dailyThree(saju) {
-  const seed = hashStr(`${todayKey()}|${saju?.ilju || ''}`);
-  const n = CLASSICS.length;
-  const picked = [];
+/* 일주별 고정 셔플 순열(Fisher–Yates, 결정적) */
+function shuffledIndices(n, seed) {
+  const arr = [...Array(n).keys()];
   let s = seed || 1;
-  while (picked.length < Math.min(3, n)) {
+  for (let i = n - 1; i > 0; i--) {
     s = (Math.imul(s, 1103515245) + 12345) >>> 0;
-    const i = s % n;
-    if (!picked.includes(i)) picked.push(i);
+    const j = s % (i + 1);
+    const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
   }
-  return picked.map(i => CLASSICS[i]);
+  return arr;
+}
+
+/* 오늘의 3구절 — 일주별 순열을 '매일 3칸씩' 진행.
+   매일 확실히 바뀌고, 전체 풀을 다 돌기 전엔(약 18일) 같은 구절이 다시 나오지 않는다. */
+export function dailyThree(saju) {
+  const n = CLASSICS.length;
+  if (!n) return [];
+  const perm = shuffledIndices(n, hashStr(saju?.ilju || 'cheonmun'));
+  const d = new Date();
+  const dayNum = Math.floor(new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() / 86400000);
+  const base = (((dayNum * 3) % n) + n) % n;
+  return [0, 1, 2].slice(0, n).map(k => CLASSICS[perm[(base + k) % n]]);
 }
 
 /* 즐겨찾기 — 한자(h)를 식별자로 localStorage 보관 */

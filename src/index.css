@@ -124,8 +124,10 @@ input::placeholder, textarea::placeholder {
 
 /* 결과 '입장' 전환 — 살짝 흐릿+확대 상태에서 또렷하게 내려앉아 '공간에 들어서는' 의식감.
    1회성(마운트 시)이라 blur 비용 부담 없음. */
-@keyframes result-descent { from { opacity:0; transform:scale(1.045); filter:blur(7px); } to { opacity:1; transform:scale(1); filter:blur(0); } }
-.result-descent { animation: result-descent .62s cubic-bezier(.16,.84,.44,1) both; }
+/* 블러 필터 제거 — 결과 페이지 마운트 시 점수가 뜨는 순간의 프레임 드랍(렉) 원인이었음.
+   opacity+transform만 써서 GPU 합성으로 매끄럽게. */
+@keyframes result-descent { from { opacity:0; transform:scale(1.02) translateY(8px); } to { opacity:1; transform:none; } }
+.result-descent { animation: result-descent .5s cubic-bezier(.16,.84,.44,1) both; }
 
 /* ── 스크롤바 숨김 ─────────────────────────────────────────── */
 .no-scrollbar::-webkit-scrollbar { display: none; }

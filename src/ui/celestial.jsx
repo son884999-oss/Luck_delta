@@ -334,7 +334,7 @@ export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emo
 
   useEffect(() => {
     // 카운트업은 ref로 DOM textContent만 직접 갱신 → 프레임마다 React 리렌더 없음(렉 제거)
-    const DELAY = 320, DURATION = 1200;
+    const DELAY = 140, DURATION = 850;
     if (numRef.current) numRef.current.textContent = '0';
     const t0 = setTimeout(() => { setStarted(true); setRingFill(score); }, DELAY);
     let frame;
@@ -353,8 +353,8 @@ export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emo
       const hap = score >= 88 ? [30, 40, 60, 40, 90] : score >= 75 ? [28, 40, 70] : [24, 50];
       vibrate(hap);
       playScoreReveal(score);
-    }, 1550);
-    const t3 = setTimeout(() => setBurst(true), 1600);
+    }, 1000);
+    const t3 = setTimeout(() => setBurst(true), 1050);
     return () => { clearTimeout(t0); clearTimeout(t2); clearTimeout(t3); cancelAnimationFrame(frame); };
   }, [score]);
 
@@ -379,7 +379,7 @@ export const ScoreRing = memo(({ score, yesterdayScore, tone, labelOverride, emo
           {/* 채움 링 */}
           <circle cx="115" cy="115" r={R} fill="none" stroke="url(#ringGrad)" strokeWidth="8" strokeLinecap="round"
             strokeDasharray={C} strokeDashoffset={C - (ringFill / 100) * C}
-            style={{ transition:'stroke-dashoffset 1.3s cubic-bezier(.16,.84,.44,1)', filter:`drop-shadow(0 0 6px ${accent}88)` }}/>
+            style={{ transition:'stroke-dashoffset 1.05s cubic-bezier(.16,.84,.44,1)', filter:`drop-shadow(0 0 6px ${accent}88)` }}/>
           <defs>
             <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor={accent}/><stop offset="100%" stopColor="#a78bfa"/>
